@@ -68,7 +68,7 @@ public class TreatmentRecordService : ITreatmentRecordService
     {
         var record = await _repository.GetByIdAsync(id);
         if (record == null)
-            throw new Exception("Treatment record not found");
+            throw new KeyNotFoundException("Treatment record not found");
 
         record.VisitDate = dto.VisitDate;
         record.ChiefComplaint = dto.ChiefComplaint;

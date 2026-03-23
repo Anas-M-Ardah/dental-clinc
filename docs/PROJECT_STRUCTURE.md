@@ -1,6 +1,6 @@
 # Project Structure
 
-## Backend (ASP.NET Core)
+## Backend (.NET 9 / ASP.NET Core)
 
 ```
 DentalClinic/
@@ -11,6 +11,7 @@ DentalClinic/
 │   │   │   ├── Doctor.cs
 │   │   │   ├── Appointment.cs
 │   │   │   ├── Treatment.cs
+│   │   │   ├── TreatmentRecord.cs
 │   │   │   ├── Invoice.cs
 │   │   │   └── InvoiceItem.cs
 │   │   ├── Enums/
@@ -22,6 +23,7 @@ DentalClinic/
 │   │   │   ├── IDoctorRepository.cs
 │   │   │   ├── IAppointmentRepository.cs
 │   │   │   ├── ITreatmentRepository.cs
+│   │   │   ├── ITreatmentRecordRepository.cs
 │   │   │   └── IInvoiceRepository.cs
 │   │   └── DentalClinic.Domain.csproj
 │   │
@@ -31,6 +33,7 @@ DentalClinic/
 │   │   │   ├── DoctorDto.cs
 │   │   │   ├── AppointmentDto.cs
 │   │   │   ├── TreatmentDto.cs
+│   │   │   ├── TreatmentRecordDto.cs
 │   │   │   ├── InvoiceDto.cs
 │   │   │   └── DashboardDto.cs
 │   │   ├── Interfaces/
@@ -38,6 +41,7 @@ DentalClinic/
 │   │   │   ├── IDoctorService.cs
 │   │   │   ├── IAppointmentService.cs
 │   │   │   ├── ITreatmentService.cs
+│   │   │   ├── ITreatmentRecordService.cs
 │   │   │   ├── IInvoiceService.cs
 │   │   │   └── IDashboardService.cs
 │   │   ├── Services/
@@ -45,6 +49,7 @@ DentalClinic/
 │   │   │   ├── DoctorService.cs
 │   │   │   ├── AppointmentService.cs
 │   │   │   ├── TreatmentService.cs
+│   │   │   ├── TreatmentRecordService.cs
 │   │   │   ├── InvoiceService.cs
 │   │   │   └── DashboardService.cs
 │   │   └── DentalClinic.Application.csproj
@@ -58,6 +63,7 @@ DentalClinic/
 │   │   │   ├── DoctorRepository.cs
 │   │   │   ├── AppointmentRepository.cs
 │   │   │   ├── TreatmentRepository.cs
+│   │   │   ├── TreatmentRecordRepository.cs
 │   │   │   └── InvoiceRepository.cs
 │   │   └── DentalClinic.Infrastructure.csproj
 │   │
@@ -67,19 +73,30 @@ DentalClinic/
 │       │   ├── DoctorsController.cs
 │       │   ├── AppointmentsController.cs
 │       │   ├── TreatmentsController.cs
+│       │   ├── TreatmentRecordsController.cs
 │       │   ├── InvoicesController.cs
 │       │   └── DashboardController.cs
 │       ├── Middleware/
-│       │   └── ExceptionMiddleware.cs
+│       │   └── ExceptionHandlingMiddleware.cs
 │       ├── Program.cs
 │       ├── appsettings.json
 │       └── DentalClinic.Api.csproj
 │
 ├── DentalClinic.sln
+├── docs/
+│   ├── ANGULAR_STRUCTURE.md
+│   ├── API_ENDPOINTS.md
+│   ├── ARCHITECTURE.md
+│   ├── DATABASE.md
+│   ├── DOMAIN_MODEL.md
+│   ├── NAMING_CONVENTIONS.md
+│   ├── PROJECT_STRUCTURE.md
+│   ├── SETUP.md
+│   └── TODOS.md
 └── README.md
 ```
 
-## Frontend (Angular)
+## Frontend (Angular 19)
 
 ```
 dental-clinic-frontend/
@@ -87,78 +104,72 @@ dental-clinic-frontend/
 │   ├── app/
 │   │   ├── core/
 │   │   │   ├── services/
-│   │   │   │   ├── patient.service.ts
-│   │   │   │   ├── doctor.service.ts
-│   │   │   │   ├── appointment.service.ts
-│   │   │   │   ├── treatment.service.ts
-│   │   │   │   ├── invoice.service.ts
-│   │   │   │   └── dashboard.service.ts
-│   │   │   ├── models/
-│   │   │   │   ├── patient.model.ts
-│   │   │   │   ├── doctor.model.ts
-│   │   │   │   ├── appointment.model.ts
-│   │   │   │   ├── treatment.model.ts
-│   │   │   │   └── invoice.model.ts
-│   │   │   └── core.module.ts
+│   │   │   │   ├── api.service.ts          # Unified HTTP client
+│   │   │   │   └── translation.service.ts  # EN/AR bilingual support
+│   │   │   └── models/
+│   │   │       ├── patient.model.ts
+│   │   │       ├── doctor.model.ts
+│   │   │       ├── appointment.model.ts
+│   │   │       ├── treatment.model.ts
+│   │   │       ├── treatment-record.model.ts
+│   │   │       └── invoice.model.ts
 │   │   │
 │   │   ├── shared/
-│   │   │   ├── components/
-│   │   │   │   ├── sidebar/
-│   │   │   │   ├── header/
-│   │   │   │   └── confirm-dialog/
-│   │   │   ├── pipes/
-│   │   │   │   └── status-badge.pipe.ts
-│   │   │   └── shared.module.ts
+│   │   │   └── pipes/
+│   │   │       └── translate.pipe.ts
 │   │   │
 │   │   ├── features/
 │   │   │   ├── dashboard/
-│   │   │   │   ├── dashboard.component.ts
-│   │   │   │   └── dashboard.module.ts
+│   │   │   │   └── dashboard.component.ts
 │   │   │   ├── patients/
-│   │   │   │   ├── patient-list/
-│   │   │   │   ├── patient-form/
-│   │   │   │   └── patients.module.ts
+│   │   │   │   ├── patients.component.ts
+│   │   │   │   └── patient-form.component.ts
 │   │   │   ├── appointments/
-│   │   │   │   ├── appointment-list/
-│   │   │   │   ├── appointment-form/
-│   │   │   │   └── appointments.module.ts
+│   │   │   │   ├── appointments.component.ts
+│   │   │   │   └── appointment-form.component.ts
 │   │   │   ├── doctors/
-│   │   │   │   ├── doctor-list/
-│   │   │   │   └── doctors.module.ts
+│   │   │   │   └── doctors.component.ts
 │   │   │   ├── treatments/
-│   │   │   │   ├── treatment-list/
-│   │   │   │   └── treatments.module.ts
-│   │   │   └── billing/
-│   │   │       ├── invoice-list/
-│   │   │       └── billing.module.ts
+│   │   │   │   └── treatments.component.ts
+│   │   │   ├── billing/
+│   │   │   │   └── billing.component.ts
+│   │   │   └── treatment-records/
+│   │   │       └── treatment-records.component.ts
 │   │   │
 │   │   ├── layouts/
 │   │   │   └── main-layout/
-│   │   │       ├── main-layout.component.ts
-│   │   │       └── main-layout.module.ts
+│   │   │       └── main-layout.component.ts
 │   │   │
 │   │   ├── app.component.ts
 │   │   ├── app.config.ts
 │   │   └── app.routes.ts
 │   │
-│   ├── assets/
-│   ├── styles/
-│   │   └── styles.css
+│   ├── styles.css          # Global styles & design system
 │   ├── index.html
-│   ├── main.ts
-│   └── angular.json
+│   └── main.ts
 │
 ├── package.json
 ├── tsconfig.json
-└── README.md
+├── tsconfig.app.json
+├── tsconfig.spec.json
+└── angular.json
 ```
 
 ## Solution Structure
 
 ```
 DentalClinic.sln
-├── DentalClinic.Domain.csproj
-├── DentalClinic.Application.csproj
-├── DentalClinic.Infrastructure.csproj
-└── DentalClinic.Api.csproj
+├── DentalClinic.Domain.csproj        (net9.0)
+├── DentalClinic.Application.csproj   (net9.0)
+├── DentalClinic.Infrastructure.csproj (net9.0)
+└── DentalClinic.Api.csproj           (net9.0)
 ```
+
+## Key Architectural Decisions
+
+- **Standalone Components**: No NgModules; all components are standalone with inline templates and styles
+- **Single ApiService**: One unified service handles all HTTP calls instead of separate services per entity
+- **Inline Templates**: All component templates and styles are defined inline (not separate files)
+- **CSS Custom Properties**: Design system uses CSS variables for theming (Inter font, Indigo primary)
+- **Bilingual Support**: TranslationService provides EN/AR with RTL layout support
+- **Clean Architecture**: Backend follows 4-layer Clean Architecture (Domain, Application, Infrastructure, API)

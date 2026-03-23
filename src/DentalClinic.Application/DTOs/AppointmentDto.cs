@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using DentalClinic.Domain.Enums;
 
 namespace DentalClinic.Application.DTOs;
@@ -21,20 +22,39 @@ public class AppointmentDto
 
 public class CreateAppointmentDto
 {
+    [Required, Range(1, int.MaxValue)]
     public int PatientId { get; set; }
+
+    [Required, Range(1, int.MaxValue)]
     public int DoctorId { get; set; }
+
+    [Required]
     public DateTime AppointmentDate { get; set; }
+
+    [Required]
     public TimeSpan StartTime { get; set; }
+
+    [Required, Range(1, int.MaxValue)]
     public int TreatmentId { get; set; }
+
+    [StringLength(500)]
     public string? Notes { get; set; }
 }
 
 public class UpdateAppointmentDto
 {
+    [Required]
     public DateTime AppointmentDate { get; set; }
+
+    [Required]
     public TimeSpan StartTime { get; set; }
+
+    [Required, Range(1, int.MaxValue)]
     public int DoctorId { get; set; }
+
+    [StringLength(500)]
     public string? Notes { get; set; }
+
     public AppointmentStatus Status { get; set; }
 }
 

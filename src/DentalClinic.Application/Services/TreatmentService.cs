@@ -47,7 +47,7 @@ public class TreatmentService : ITreatmentService
     {
         var treatment = await _treatmentRepository.GetByIdAsync(id);
         if (treatment == null)
-            throw new Exception("Treatment not found");
+            throw new KeyNotFoundException("Treatment not found");
 
         treatment.Name = dto.Name;
         treatment.Description = dto.Description;
@@ -62,7 +62,7 @@ public class TreatmentService : ITreatmentService
     {
         var treatment = await _treatmentRepository.GetByIdAsync(id);
         if (treatment == null)
-            throw new Exception("Treatment not found");
+            throw new KeyNotFoundException("Treatment not found");
 
         treatment.IsActive = false;
         await _treatmentRepository.UpdateAsync(treatment);

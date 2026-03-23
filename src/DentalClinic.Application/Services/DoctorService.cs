@@ -1,4 +1,3 @@
-using System.Linq;
 using DentalClinic.Application.DTOs;
 using DentalClinic.Application.Interfaces;
 using DentalClinic.Domain.Entities;
@@ -9,12 +8,10 @@ namespace DentalClinic.Application.Services;
 public class DoctorService : IDoctorService
 {
     private readonly IDoctorRepository _doctorRepository;
-    private readonly IAppointmentRepository _appointmentRepository;
 
-    public DoctorService(IDoctorRepository doctorRepository, IAppointmentRepository appointmentRepository)
+    public DoctorService(IDoctorRepository doctorRepository)
     {
         _doctorRepository = doctorRepository;
-        _appointmentRepository = appointmentRepository;
     }
 
     public async Task<IEnumerable<DoctorDto>> GetAllAsync()
@@ -33,7 +30,7 @@ public class DoctorService : IDoctorService
     {
         var doctor = await _doctorRepository.GetByIdAsync(id);
         if (doctor == null)
-            throw new Exception("Doctor not found");
+            throw new KeyNotFoundException("Doctor not found");
 
         var doctorWithAppointments = await _doctorRepository.GetByIdWithAppointmentsAsync(id, date);
 

@@ -85,6 +85,67 @@ public class Treatment
 }
 ```
 
+### TreatmentRecord
+```csharp
+public class TreatmentRecord
+{
+    public int Id { get; set; }
+    public int PatientId { get; set; }
+    public int DoctorId { get; set; }
+    public int? AppointmentId { get; set; }
+
+    public DateTime VisitDate { get; set; }
+
+    // Chief Complaint
+    public string ChiefComplaint { get; set; } = string.Empty;
+    public int PainLevel { get; set; }              // 0-10 NRS
+    public string SymptomDuration { get; set; } = string.Empty;
+
+    // Clinical Examination
+    public string ExtraoralFindings { get; set; } = string.Empty;
+    public string IntraoralFindings { get; set; } = string.Empty;
+    public string TeethCondition { get; set; } = string.Empty;   // e.g., "#19 MOD (Tooth)"
+    public string GumCondition { get; set; } = string.Empty;
+    public string RadiographicFindings { get; set; } = string.Empty;
+
+    // Diagnosis
+    public string PrimaryDiagnosis { get; set; } = string.Empty;    // ICD-10 coded
+    public string SecondaryDiagnoses { get; set; } = string.Empty;
+
+    // Treatment Plan
+    public string TreatmentPlan { get; set; } = string.Empty;
+    public string TreatmentStages { get; set; } = string.Empty;
+    public decimal EstimatedCost { get; set; }
+
+    // Procedure
+    public string ProcedurePerformed { get; set; } = string.Empty;  // CDT coded
+    public string AnaesthesiaUsed { get; set; } = string.Empty;     // Composed: type | technique | carpules
+    public string MaterialsUsed { get; set; } = string.Empty;
+    public string Complications { get; set; } = string.Empty;
+    public int ProcedureDurationMinutes { get; set; }
+
+    // Post-Treatment
+    public string Prescriptions { get; set; } = string.Empty;
+    public string PostTreatmentInstructions { get; set; } = string.Empty;
+
+    // Follow-up
+    public DateTime? NextAppointmentDate { get; set; }
+    public int RecallPeriodDays { get; set; }
+
+    public string Notes { get; set; } = string.Empty;
+
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+
+    // Navigation Properties
+    public virtual Patient Patient { get; set; } = null!;
+    public virtual Doctor Doctor { get; set; } = null!;
+    public virtual Appointment? Appointment { get; set; }
+}
+```
+
+> **Design Note**: All TreatmentRecord clinical fields are stored as `string`. The frontend uses structured dropdowns (tooth numbers, diagnoses, procedures, materials, anaesthesia types) but composes them into plain strings before saving. This avoids backend schema changes when adding new dropdown options.
+
 ### Invoice
 ```csharp
 public class Invoice
@@ -167,13 +228,17 @@ public enum InvoiceStatus
 
 ```
 Patient (1) ─────< (N) Appointment
-Doctor (1) ─────< (N) Appointment
-Treatment (1) ──< (N) Appointment
-Treatment (1) ──< (N) InvoiceItem
+Doctor (1) ──────< (N) Appointment
+Treatment (1) ───< (N) Appointment
+Treatment (1) ───< (N) InvoiceItem
 
 Patient (1) ─────< (N) Invoice
 Appointment (1) ─< (0..1) Invoice
 Invoice (1) ─────< (N) InvoiceItem
+
+Patient (1) ─────< (N) TreatmentRecord
+Doctor (1) ──────< (N) TreatmentRecord
+Appointment (1) ─< (0..1) TreatmentRecord
 ```
 
 ---
@@ -234,6 +299,40 @@ Invoice (1) ─────< (N) InvoiceItem
 | CreatedAt | datetime2 | NOT NULL |
 | UpdatedAt | datetime2 | NULLABLE |
 
+### TreatmentRecords Table
+| Column | Type | Constraints |
+|--------|------|-------------|
+| Id | int | PK, IDENTITY |
+| PatientId | int | FK -> Patients |
+| DoctorId | int | FK -> Doctors |
+| AppointmentId | int | FK -> Appointments, NULLABLE |
+| VisitDate | datetime2 | NOT NULL |
+| ChiefComplaint | nvarchar(max) | NOT NULL |
+| PainLevel | int | NOT NULL |
+| SymptomDuration | nvarchar(max) | NOT NULL |
+| ExtraoralFindings | nvarchar(max) | NOT NULL |
+| IntraoralFindings | nvarchar(max) | NOT NULL |
+| TeethCondition | nvarchar(max) | NOT NULL |
+| GumCondition | nvarchar(max) | NOT NULL |
+| RadiographicFindings | nvarchar(max) | NOT NULL |
+| PrimaryDiagnosis | nvarchar(max) | NOT NULL |
+| SecondaryDiagnoses | nvarchar(max) | NOT NULL |
+| TreatmentPlan | nvarchar(max) | NOT NULL |
+| TreatmentStages | nvarchar(max) | NOT NULL |
+| EstimatedCost | decimal(18,2) | NOT NULL |
+| ProcedurePerformed | nvarchar(max) | NOT NULL |
+| AnaesthesiaUsed | nvarchar(max) | NOT NULL |
+| MaterialsUsed | nvarchar(max) | NOT NULL |
+| Complications | nvarchar(max) | NOT NULL |
+| ProcedureDurationMinutes | int | NOT NULL |
+| Prescriptions | nvarchar(max) | NOT NULL |
+| PostTreatmentInstructions | nvarchar(max) | NOT NULL |
+| NextAppointmentDate | datetime2 | NULLABLE |
+| RecallPeriodDays | int | NOT NULL |
+| Notes | nvarchar(max) | NOT NULL |
+| CreatedAt | datetime2 | NOT NULL |
+| UpdatedAt | datetime2 | NULLABLE |
+
 ### Invoices Table
 | Column | Type | Constraints |
 |--------|------|-------------|
@@ -271,13 +370,13 @@ Invoice (1) ─────< (N) InvoiceItem
 | 4 | Layla | Hassan | Pediatric Dentistry | +962790000004 |
 
 ### Treatments
-| Id | Name | Description | Price | DurationMinutes |
-|----|------|-------------|-------|-----------------|
-| 1 | Teeth Cleaning | Professional dental cleaning and polishing | 50.00 | 30 |
-| 2 | Teeth Whitening | Professional whitening treatment | 150.00 | 60 |
-| 3 | Dental Filling | Composite or amalgam filling | 80.00 | 45 |
-| 4 | Root Canal | Endodontic treatment | 300.00 | 90 |
-| 5 | Dental Crown | Porcelain or ceramic crown | 500.00 | 60 |
-| 6 | Braces (Traditional) | Metal braces installation | 2000.00 | 120 |
-| 7 | Tooth Extraction | Simple or surgical extraction | 100.00 | 30 |
-| 8 | Dental Implant | Titanium implant placement | 1500.00 | 90 |
+| Id | Name | Price | Duration |
+|----|------|-------|----------|
+| 1 | Teeth Cleaning | 50.00 | 30 min |
+| 2 | Teeth Whitening | 150.00 | 60 min |
+| 3 | Dental Filling | 80.00 | 45 min |
+| 4 | Root Canal | 300.00 | 90 min |
+| 5 | Dental Crown | 500.00 | 60 min |
+| 6 | Braces (Traditional) | 2000.00 | 120 min |
+| 7 | Tooth Extraction | 100.00 | 30 min |
+| 8 | Dental Implant | 1500.00 | 90 min |

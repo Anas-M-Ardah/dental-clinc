@@ -71,7 +71,7 @@ public class PatientService : IPatientService
     {
         var patient = await _patientRepository.GetByIdAsync(id);
         if (patient == null)
-            throw new Exception("Patient not found");
+            throw new KeyNotFoundException("Patient not found");
 
         patient.FirstName = dto.FirstName;
         patient.LastName = dto.LastName;

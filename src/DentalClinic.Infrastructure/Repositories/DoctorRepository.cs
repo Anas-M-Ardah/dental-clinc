@@ -33,9 +33,10 @@ public class DoctorRepository : IDoctorRepository
             .Include(d => d.Appointments
                 .Where(a => a.AppointmentDate == date)
                 .OrderBy(a => a.StartTime))
-            .ThenInclude(a => a.Patient)
-            .Include(d => d.Appointments)
-            .ThenInclude(a => a.Treatment)
+                .ThenInclude(a => a.Patient)
+            .Include(d => d.Appointments
+                .Where(a => a.AppointmentDate == date))
+                .ThenInclude(a => a.Treatment)
             .FirstOrDefaultAsync(d => d.Id == id);
     }
 }
