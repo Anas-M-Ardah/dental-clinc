@@ -2,8 +2,10 @@
 
 ## Base URL
 ```
-https://localhost:7000/api
+http://localhost:7000/api
 ```
+
+Swagger UI available at: `http://localhost:7000/swagger` (development only)
 
 ---
 
@@ -149,9 +151,9 @@ Query Parameters:
 | doctorId | int | No | Filter by doctor |
 | patientId | int | No | Filter by patient |
 | date | date | No | Filter by date |
-| status | string | No | Pending, Confirmed, Completed, Cancelled |
-| startDate | date | No | Filter start range |
-| endDate | date | No | Filter end range |
+| status | int | No | 0=Pending, 1=Confirmed, 2=InProgress, 3=Completed, 4=Cancelled, 5=NoShow |
+| pageNumber | int | No | Default: 1 |
+| pageSize | int | No | Default: 10 |
 
 Response:
 ```json
@@ -169,11 +171,13 @@ Response:
       "treatmentId": 1,
       "treatmentName": "Teeth Cleaning",
       "notes": "First visit",
-      "status": "Confirmed",
+      "status": 1,
       "createdAt": "2024-01-01T10:00:00Z"
     }
   ],
-  "totalCount": 100
+  "totalCount": 100,
+  "pageNumber": 1,
+  "pageSize": 10
 }
 ```
 
@@ -224,24 +228,10 @@ Request Body:
 ```
 PUT /appointments/{id}
 ```
-Request Body:
-```json
-{
-  "appointmentDate": "2024-01-16",
-  "startTime": "10:00",
-  "doctorId": 2,
-  "notes": "Rescheduled",
-  "status": "Confirmed"
-}
-```
 
-### Cancel Appointment
+### Cancel/Delete Appointment
 ```
 DELETE /appointments/{id}
-```
-OR
-```
-PATCH /appointments/{id}/cancel
 ```
 
 ---
@@ -266,7 +256,12 @@ Response:
 ]
 ```
 
-### Create Treatment (Admin)
+### Get Treatment by ID
+```
+GET /treatments/{id}
+```
+
+### Create Treatment
 ```
 POST /treatments
 ```
@@ -292,6 +287,75 @@ DELETE /treatments/{id}
 
 ---
 
+## Treatment Records
+
+### Get Records by Patient
+```
+GET /treatment-records/patient/{patientId}
+```
+Response:
+```json
+[
+  {
+    "id": 1,
+    "patientId": 1,
+    "patientName": "John Doe",
+    "doctorId": 1,
+    "doctorName": "Dr. Ahmad Al-Masri",
+    "appointmentId": null,
+    "visitDate": "2024-01-15T00:00:00Z",
+    "chiefComplaint": "Tooth pain upper right",
+    "painLevel": 7,
+    "symptomDuration": "3 days",
+    "extraoralFindings": "Normal",
+    "intraoralFindings": "Caries on #3",
+    "teethCondition": "#3 MOD (Tooth)",
+    "gumCondition": "Mild inflammation",
+    "radiographicFindings": "Periapical radiolucency #3",
+    "primaryDiagnosis": "K02.1 - Dentin Caries",
+    "secondaryDiagnoses": "",
+    "treatmentPlan": "Root canal therapy #3",
+    "treatmentStages": "Stage 1: Pulpectomy",
+    "estimatedCost": 300.00,
+    "procedurePerformed": "D3310 - Root Canal - Anterior",
+    "anaesthesiaUsed": "Lidocaine 2% w/ Epi 1:100k | Inferior Alveolar Nerve Block | 2 carpules",
+    "materialsUsed": "Gutta Percha Points",
+    "complications": "",
+    "procedureDurationMinutes": 60,
+    "prescriptions": "Amoxicillin 500mg - 1 cap TID x 7 days\nIbuprofen 400mg - 1 tab TID PRN for pain",
+    "postTreatmentInstructions": "Post-RCT Care:\n- Avoid chewing on treated side...",
+    "nextAppointmentDate": "2024-01-22T00:00:00Z",
+    "recallPeriodDays": 7,
+    "notes": "",
+    "createdAt": "2024-01-15T14:30:00Z"
+  }
+]
+```
+
+### Get Record by ID
+```
+GET /treatment-records/{id}
+```
+
+### Create Treatment Record
+```
+POST /treatment-records
+```
+Request Body: `CreateTreatmentRecordDto` (all fields except `id`, `patientName`, `doctorName`, `createdAt`)
+
+### Update Treatment Record
+```
+PUT /treatment-records/{id}
+```
+Request Body: `UpdateTreatmentRecordDto` (all clinical fields, excluding patient/doctor IDs)
+
+### Delete Treatment Record
+```
+DELETE /treatment-records/{id}
+```
+
+---
+
 ## Invoices
 
 ### Get All Invoices
@@ -302,9 +366,11 @@ Query Parameters:
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | patientId | int | No | Filter by patient |
-| status | string | No | Pending, Paid, Cancelled |
+| status | int | No | 0=Pending, 1=Paid, 2=Cancelled, 3=Refunded |
 | startDate | date | No | Filter start |
 | endDate | date | No | Filter end |
+| pageNumber | int | No | Default: 1 |
+| pageSize | int | No | Default: 10 |
 
 Response:
 ```json
@@ -317,7 +383,7 @@ Response:
       "patientName": "John Doe",
       "appointmentId": 1,
       "totalAmount": 150.00,
-      "status": "Pending",
+      "status": 0,
       "createdAt": "2024-01-15T10:00:00Z",
       "items": [
         {
@@ -326,13 +392,6 @@ Response:
           "quantity": 1,
           "unitPrice": 50.00,
           "totalPrice": 50.00
-        },
-        {
-          "id": 2,
-          "treatmentName": "Teeth Whitening",
-          "quantity": 1,
-          "unitPrice": 100.00,
-          "totalPrice": 100.00
         }
       ]
     }
@@ -401,38 +460,10 @@ Response:
 ```
 GET /dashboard/today-schedule
 ```
-Response:
-```json
-{
-  "date": "2024-01-15",
-  "appointments": [
-    {
-      "id": 1,
-      "patientName": "John Doe",
-      "doctorName": "Dr. Ahmad",
-      "startTime": "09:00",
-      "treatmentName": "Teeth Cleaning",
-      "status": "Confirmed"
-    }
-  ]
-}
-```
 
 ### Get Recent Patients
 ```
-GET /dashboard/recent-patients
-```
-Response:
-```json
-[
-  {
-    "id": 1,
-    "firstName": "John",
-    "lastName": "Doe",
-    "phone": "+962790000000",
-    "createdAt": "2024-01-15T10:00:00Z"
-  }
-]
+GET /dashboard/recent-patients?count=5
 ```
 
 ---
@@ -472,3 +503,12 @@ All endpoints may return:
   "detail": "An unexpected error occurred"
 }
 ```
+
+---
+
+## CORS Configuration
+
+The API is configured to allow requests from the Angular frontend:
+- **Allowed Origin**: `http://localhost:4200`
+- **Allowed Methods**: All
+- **Allowed Headers**: All

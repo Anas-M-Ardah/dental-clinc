@@ -52,7 +52,7 @@ public class InvoiceService : IInvoiceService
     {
         var patient = await _patientRepository.GetByIdAsync(dto.PatientId);
         if (patient == null)
-            throw new Exception("Patient not found");
+            throw new KeyNotFoundException("Patient not found");
 
         var invoiceNumber = GenerateInvoiceNumber();
         var totalAmount = 0m;
@@ -62,7 +62,7 @@ public class InvoiceService : IInvoiceService
         {
             var treatment = await _treatmentRepository.GetByIdAsync(item.TreatmentId);
             if (treatment == null)
-                throw new Exception($"Treatment with ID {item.TreatmentId} not found");
+                throw new KeyNotFoundException($"Treatment with ID {item.TreatmentId} not found");
 
             var itemTotal = treatment.Price * item.Quantity;
             totalAmount += itemTotal;
@@ -95,7 +95,7 @@ public class InvoiceService : IInvoiceService
     {
         var invoice = await _invoiceRepository.GetByIdAsync(id);
         if (invoice == null)
-            throw new Exception("Invoice not found");
+            throw new KeyNotFoundException("Invoice not found");
 
         invoice.Status = InvoiceStatus.Paid;
         invoice.PaymentMethod = dto.PaymentMethod;
@@ -110,7 +110,7 @@ public class InvoiceService : IInvoiceService
     {
         var invoice = await _invoiceRepository.GetByIdAsync(id);
         if (invoice == null)
-            throw new Exception("Invoice not found");
+            throw new KeyNotFoundException("Invoice not found");
 
         invoice.Status = InvoiceStatus.Cancelled;
 
@@ -146,6 +146,6 @@ public class InvoiceService : IInvoiceService
 
     private static string GenerateInvoiceNumber()
     {
-        return $"INV-{DateTime.UtcNow:yyyy}-{DateTime.UtcNow.Ticks % 100000:D5}";
+        return $"INV-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpper()}";
     }
 }

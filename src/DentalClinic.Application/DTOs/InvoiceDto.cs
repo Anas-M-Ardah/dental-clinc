@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using DentalClinic.Domain.Enums;
 
 namespace DentalClinic.Application.DTOs;
@@ -29,19 +30,29 @@ public class InvoiceDto
 
 public class CreateInvoiceDto
 {
+    [Required, Range(1, int.MaxValue)]
     public int PatientId { get; set; }
+
     public int? AppointmentId { get; set; }
+
+    [Required, MinLength(1)]
     public List<CreateInvoiceItemDto> Items { get; set; } = new();
 }
 
 public class CreateInvoiceItemDto
 {
+    [Required, Range(1, int.MaxValue)]
     public int TreatmentId { get; set; }
+
+    [Required, Range(1, 100)]
     public int Quantity { get; set; }
 }
 
 public class PayInvoiceDto
 {
+    [StringLength(50)]
     public string? PaymentMethod { get; set; }
+
+    [StringLength(500)]
     public string? Notes { get; set; }
 }

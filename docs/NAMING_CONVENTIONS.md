@@ -9,7 +9,7 @@
 
 ---
 
-## C# (.NET) Conventions
+## C# (.NET 9) Conventions
 
 ### Files
 | Type | Convention | Example |
@@ -17,14 +17,13 @@
 | Class | PascalCase | `PatientService.cs` |
 | Interface | PascalCase with I prefix | `IPatientRepository.cs` |
 | Enum | PascalCase | `AppointmentStatus.cs` |
-| Entity | PascalCase | `Patient.cs` |
+| Entity | PascalCase | `TreatmentRecord.cs` |
 
 ### Classes & Types
 | Type | Convention | Example |
 |------|------------|---------|
-| Class | PascalCase | `PatientService` |
-| Interface | PascalCase + I | `IPatientService` |
-| Abstract | PascalCase + Base | `BaseEntity` |
+| Class | PascalCase | `TreatmentRecordService` |
+| Interface | PascalCase + I | `ITreatmentRecordService` |
 | Enum | PascalCase | `Gender` |
 | Enum Value | PascalCase | `AppointmentStatus.Pending` |
 
@@ -33,51 +32,53 @@
 |------|------------|---------|
 | Public Property | PascalCase | `FirstName` |
 | Private Field | _camelCase | `_patientRepository` |
-| Method | PascalCase | `GetPatientById` |
+| Method | PascalCase + Async | `GetPatientByIdAsync` |
 | Parameter | camelCase | `patientId` |
-| Constant | PascalCase | `DefaultPageSize` |
 
 ### Namespaces
 ```csharp
 namespace DentalClinic.Domain.Entities
 namespace DentalClinic.Application.DTOs
+namespace DentalClinic.Application.Services
 namespace DentalClinic.Infrastructure.Repositories
+namespace DentalClinic.Api.Controllers
+namespace DentalClinic.Api.Middleware
 ```
 
 ---
 
-## TypeScript / Angular Conventions
+## TypeScript / Angular 19 Conventions
 
 ### Files
 | Type | Convention | Example |
 |------|------------|---------|
-| Component | kebab-case | `patient-list.component.ts` |
-| Service | kebab-case | `patient.service.ts` |
-| Model/Interface | PascalCase | `Patient.model.ts` |
-| Pipe | kebab-case | `status-badge.pipe.ts` |
+| Component | kebab-case | `treatment-records.component.ts` |
+| Service | kebab-case | `api.service.ts` |
+| Model | kebab-case | `treatment-record.model.ts` |
+| Pipe | kebab-case | `translate.pipe.ts` |
 
 ### Classes & Interfaces
 | Type | Convention | Example |
 |------|------------|---------|
-| Class | PascalCase | `PatientListComponent` |
-| Interface | PascalCase | `Patient` |
-| Type | PascalCase | `AppointmentStatus` |
-| Enum | PascalCase | `Gender` |
+| Component | PascalCase | `TreatmentRecordsComponent` |
+| Service | PascalCase | `ApiService` |
+| Interface | PascalCase | `TreatmentRecord` |
+| DTO Interface | PascalCase + Dto | `CreateTreatmentRecordDto` |
 
 ### Variables & Methods
 | Type | Convention | Example |
 |------|------------|---------|
-| Variable | camelCase | `patientList` |
-| Method | camelCase | `getPatients()` |
-| Property | camelCase | `firstName` |
-| Constant | PascalCase | `API_URL` |
+| Variable | camelCase | `painLevel` |
+| Method | camelCase | `loadPatients()` |
+| Property | camelCase | `selectedInvoice` |
+| Subject | camelCase + $ | `destroy$`, `searchSubject` |
 
 ### Angular Specific
 | Type | Convention | Example |
 |------|------------|---------|
-| Component Selector | kebab-case | `app-patient-list` |
-| Input/Output | camelCase | `@Input() patientId` |
-| Route Path | kebab-case | `patients/:id` |
+| Component Selector | kebab-case | `app-treatment-records` |
+| Route Path | kebab-case | `treatment-records` |
+| Translation Key | dot-separated | `treatmentRecords.title` |
 
 ---
 
@@ -86,10 +87,10 @@ namespace DentalClinic.Infrastructure.Repositories
 ### Tables
 | Type | Convention | Example |
 |------|------------|---------|
-| Table | PascalCase | `Patients` |
-| Column | PascalCase | `First Primary Key | PascalName` |
-|Case | `Id` |
-| Foreign Key | PascalCase | `PatientId` |
+| Table Name | PascalCase Plural | `TreatmentRecords` |
+| Column Name | PascalCase | `ChiefComplaint` |
+| Primary Key | `Id` | `Id` |
+| Foreign Key | PascalCase + Id | `PatientId` |
 
 ---
 
@@ -98,15 +99,35 @@ namespace DentalClinic.Infrastructure.Repositories
 ### Endpoints
 | Type | Convention | Example |
 |------|------------|---------|
-| Resource | Plural, kebab-case | `/api/patients` |
-| Action | kebab-case | `/appointments/{id}/cancel` |
+| Resource | Plural, kebab-case | `/api/treatment-records` |
+| Sub-resource | Nested path | `/api/treatment-records/patient/{patientId}` |
+| Action | kebab-case verb | `/api/invoices/{id}/pay` |
 
 ### Request/Response
 | Type | Convention | Example |
 |------|------------|---------|
-| DTO | PascalCase | `PatientDto` |
-| Request Body | PascalCase | `CreatePatientRequest` |
-| Response | PascalCase | `PatientResponse` |
+| Read DTO | PascalCase + Dto | `TreatmentRecordDto` |
+| Create DTO | Create + PascalCase + Dto | `CreateTreatmentRecordDto` |
+| Update DTO | Update + PascalCase + Dto | `UpdateTreatmentRecordDto` |
+
+---
+
+## Translation Key Conventions
+
+Keys follow a hierarchical dot-separated pattern:
+```
+<feature>.<label>
+
+Examples:
+common.save
+common.cancel
+patients.title
+patients.addPatient
+appointments.selectDoctor
+treatmentRecords.chiefComplaint
+billing.markAsPaid
+nav.dashboard
+```
 
 ---
 
@@ -115,9 +136,9 @@ namespace DentalClinic.Infrastructure.Repositories
 ### Branches
 | Type | Convention | Example |
 |------|------------|---------|
-| Feature | feature/description | `feature/add-patient-search` |
-| Bugfix | bugfix/description | `bugfix/fix-appointment-time` |
-| Hotfix | hotfix/description | `hotfix/security-patch` |
+| Feature | `<name>/description` | `hassan.k/general-updates` |
+| Feature | `feature/description` | `feature/add-treatment-records` |
+| Bugfix | `bugfix/description` | `bugfix/fix-appointment-time` |
 
 ### Commits
 ```
@@ -128,148 +149,46 @@ Types: feat, fix, docs, style, refactor, test, chore
 
 Examples:
 ```
-feat(patient): add search functionality
-fix(appointment): resolve time zone issue
+feat(treatment-records): add professional dental form
+fix(appointments): resolve time slot overlap
 docs(api): update endpoint documentation
 ```
 
 ---
 
-## Code Organization
+## Code Organization (Angular Standalone Components)
 
-### File Order (C#)
-```csharp
-// 1. Using statements
-using System;
-
-// 2. Namespace
-namespace DentalClinic.Application.Services;
-
-// 3. Class declaration
-public class PatientService
-{
-    // 4. Private fields
-    private readonly IPatientRepository _repository;
-    
-    // 5. Constructor
-    public PatientService(IPatientRepository repository)
-    {
-        _repository = repository;
-    }
-    
-    // 6. Public methods
-    // 7. Private methods
-}
-```
-
-### File Order (Angular)
 ```typescript
 // 1. Imports
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-// 2. Component decorator
-@Component({ ... })
-
-// 3. Class declaration
-export class PatientListComponent {
-  // 4. Properties
-  // 5. Constructor
-  // 6. Methods
-}
-```
-
----
-
-## Abbreviations
-
-### Use Full Words
-| Avoid | Use |
-|-----|-----|
-| `btn` | `button` |
-| `lbl` | `label` |
-| `txt` | `text` |
-| `msg` | `message` |
-| `num` | `number` |
-
-### Common Abbreviations (OK)
-| Abbreviation | Full |
-|--------------|------|
-| `id` | identifier |
-| `config` | configuration |
-| `init` | initialize |
-| `temp` | temporary |
-| `utils` | utilities |
-
----
-
-## Example: Complete Naming Chain
-
-**Backend Entity:**
-```csharp
-// DentalClinic.Domain/Entities/Patient.cs
-public class Patient
-{
-    public int Id { get; set; }
-    public string FirstName { get; set; }
-    public DateTime DateOfBirth { get; set; }
-}
-```
-
-**Backend Repository:**
-```csharp
-// DentalClinic.Domain/Interfaces/IPatientRepository.cs
-public interface IPatientRepository
-{
-    Task<Patient?> GetByIdAsync(int id);
-    Task<IEnumerable<Patient>> GetAllAsync();
-}
-```
-
-**Backend DTO:**
-```csharp
-// DentalClinic.Application/DTOs/PatientDto.cs
-public class PatientDto
-{
-    public int Id { get; set; }
-    public string FirstName { get; set; }
-}
-```
-
-**Backend Service:**
-```csharp
-// DentalClinic.Application/Services/PatientService.cs
-public class PatientService : IPatientService
-{
-    private readonly IPatientRepository _repository;
-    
-    public async Task<PatientDto> GetPatientByIdAsync(int id) { ... }
-}
-```
-
-**Frontend Model:**
-```typescript
-// dental-clinic-frontend/src/app/core/models/patient.model.ts
-export interface Patient {
-  id: number;
-  firstName: string;
-}
-```
-
-**Frontend Service:**
-```typescript
-// dental-clinic-frontend/src/app/core/services/patient.service.ts
-@Injectable({ providedIn: 'root' })
-export class PatientService {
-  getPatientById(id: number): Observable<Patient> { ... }
-}
-```
-
-**Frontend Component:**
-```typescript
-// dental-clinic-frontend/src/app/features/patients/patient-list/patient-list.component.ts
+// 2. Component decorator with inline template & styles
 @Component({
-  selector: 'app-patient-list',
-  templateUrl: './patient-list.component.html'
+  selector: 'app-feature-name',
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslatePipe],
+  template: `...`,
+  styles: [`...`]
 })
-export class PatientListComponent { }
+
+// 3. Class
+export class FeatureNameComponent implements OnInit, OnDestroy {
+  // 4. Public properties
+  items: Item[] = [];
+  loading = false;
+
+  // 5. Private properties
+  private destroy$ = new Subject<void>();
+
+  // 6. Constructor (DI)
+  constructor(private api: ApiService) {}
+
+  // 7. Lifecycle hooks
+  ngOnInit() { ... }
+  ngOnDestroy() { ... }
+
+  // 8. Public methods
+  // 9. Private methods
+}
 ```

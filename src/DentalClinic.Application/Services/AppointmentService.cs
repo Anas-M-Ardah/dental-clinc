@@ -55,7 +55,7 @@ public class AppointmentService : IAppointmentService
     {
         var doctor = await _doctorRepository.GetByIdAsync(doctorId);
         if (doctor == null)
-            throw new Exception("Doctor not found");
+            throw new KeyNotFoundException("Doctor not found");
 
         var existingAppointments = await _appointmentRepository.GetByDoctorAndDateAsync(doctorId, date);
         var bookedSlots = existingAppointments.Select(a => a.StartTime).ToHashSet();
@@ -75,15 +75,15 @@ public class AppointmentService : IAppointmentService
     {
         var patient = await _patientRepository.GetByIdAsync(dto.PatientId);
         if (patient == null)
-            throw new Exception("Patient not found");
+            throw new KeyNotFoundException("Patient not found");
 
         var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
         if (doctor == null)
-            throw new Exception("Doctor not found");
+            throw new KeyNotFoundException("Doctor not found");
 
         var treatment = await _treatmentRepository.GetByIdAsync(dto.TreatmentId);
         if (treatment == null)
-            throw new Exception("Treatment not found");
+            throw new KeyNotFoundException("Treatment not found");
 
         var appointment = new Appointment
         {
@@ -106,7 +106,7 @@ public class AppointmentService : IAppointmentService
     {
         var appointment = await _appointmentRepository.GetByIdAsync(id);
         if (appointment == null)
-            throw new Exception("Appointment not found");
+            throw new KeyNotFoundException("Appointment not found");
 
         appointment.AppointmentDate = dto.AppointmentDate;
         appointment.StartTime = dto.StartTime;
