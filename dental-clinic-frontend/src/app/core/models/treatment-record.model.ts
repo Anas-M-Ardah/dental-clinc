@@ -81,4 +81,37 @@ export interface CreateTreatmentRecordDto {
   notes: string;
 }
 
-export interface UpdateTreatmentRecordDto extends CreateTreatmentRecordDto {}
+export interface UpdateTreatmentRecordDto {
+  visitDate: string;
+
+  chiefComplaint: string;
+  painLevel: number;
+  symptomDuration: string;
+
+  extraoralFindings: string;
+  intraoralFindings: string;
+  teethCondition: string;
+  gumCondition: string;
+  radiographicFindings: string;
+
+  primaryDiagnosis: string;
+  secondaryDiagnoses: string;
+
+  treatmentPlan: string;
+  treatmentStages: string;
+  estimatedCost: number;
+
+  procedurePerformed: string;
+  anaesthesiaUsed: string;
+  materialsUsed: string;
+  complications: string;
+  procedureDurationMinutes: number;
+
+  prescriptions: string;
+  postTreatmentInstructions: string;
+
+  nextAppointmentDate?: string;
+  recallPeriodDays: number;
+
+  notes: string;
+}

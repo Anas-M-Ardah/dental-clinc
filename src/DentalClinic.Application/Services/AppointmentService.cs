@@ -98,8 +98,9 @@ public class AppointmentService : IAppointmentService
             CreatedAt = DateTime.UtcNow
         };
 
-        var created = await _appointmentRepository.AddAsync(appointment);
-        return MapToDto(created);
+        await _appointmentRepository.AddAsync(appointment);
+        var created = await _appointmentRepository.GetByIdAsync(appointment.Id);
+        return MapToDto(created!);
     }
 
     public async Task<AppointmentDto> UpdateAsync(int id, UpdateAppointmentDto dto)
@@ -121,8 +122,9 @@ public class AppointmentService : IAppointmentService
             appointment.EndTime = dto.StartTime.Add(TimeSpan.FromMinutes(treatment.DurationMinutes));
         }
 
-        var updated = await _appointmentRepository.UpdateAsync(appointment);
-        return MapToDto(updated);
+        await _appointmentRepository.UpdateAsync(appointment);
+        var updated = await _appointmentRepository.GetByIdAsync(appointment.Id);
+        return MapToDto(updated!);
     }
 
     public async Task DeleteAsync(int id)

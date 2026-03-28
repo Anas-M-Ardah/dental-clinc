@@ -17,6 +17,7 @@ public class TreatmentRecordRepository : ITreatmentRecordRepository
     public async Task<IEnumerable<TreatmentRecord>> GetByPatientAsync(int patientId)
     {
         return await _context.TreatmentRecords
+            .Include(r => r.Patient)
             .Include(r => r.Doctor)
             .Where(r => r.PatientId == patientId)
             .OrderByDescending(r => r.VisitDate)
