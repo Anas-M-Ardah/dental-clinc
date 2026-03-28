@@ -60,8 +60,9 @@ public class TreatmentRecordService : ITreatmentRecordService
             CreatedAt = DateTime.UtcNow
         };
 
-        var created = await _repository.AddAsync(record);
-        return MapToDto(created);
+        await _repository.AddAsync(record);
+        var created = await _repository.GetByIdWithDetailsAsync(record.Id);
+        return MapToDto(created!);
     }
 
     public async Task<TreatmentRecordDto> UpdateAsync(int id, UpdateTreatmentRecordDto dto)
@@ -96,8 +97,9 @@ public class TreatmentRecordService : ITreatmentRecordService
         record.Notes = dto.Notes;
         record.UpdatedAt = DateTime.UtcNow;
 
-        var updated = await _repository.UpdateAsync(record);
-        return MapToDto(updated);
+        await _repository.UpdateAsync(record);
+        var updated = await _repository.GetByIdWithDetailsAsync(record.Id);
+        return MapToDto(updated!);
     }
 
     public async Task DeleteAsync(int id)

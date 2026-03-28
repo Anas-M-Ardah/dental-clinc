@@ -87,13 +87,14 @@ public class InvoiceService : IInvoiceService
             Items = items
         };
 
-        var created = await _invoiceRepository.AddAsync(invoice);
-        return MapToDto(created);
+        await _invoiceRepository.AddAsync(invoice);
+        var created = await _invoiceRepository.GetByIdWithItemsAsync(invoice.Id);
+        return MapToDto(created!);
     }
 
     public async Task<InvoiceDto> PayAsync(int id, PayInvoiceDto dto)
     {
-        var invoice = await _invoiceRepository.GetByIdAsync(id);
+        var invoice = await _invoiceRepository.GetByIdWithItemsAsync(id);
         if (invoice == null)
             throw new KeyNotFoundException("Invoice not found");
 
@@ -102,20 +103,22 @@ public class InvoiceService : IInvoiceService
         invoice.Notes = dto.Notes;
         invoice.PaidAt = DateTime.UtcNow;
 
-        var updated = await _invoiceRepository.UpdateAsync(invoice);
-        return MapToDto(updated);
+        await _invoiceRepository.UpdateAsync(invoice);
+        var updated = await _invoiceRepository.GetByIdWithItemsAsync(invoice.Id);
+        return MapToDto(updated!);
     }
 
     public async Task<InvoiceDto> CancelAsync(int id)
     {
-        var invoice = await _invoiceRepository.GetByIdAsync(id);
+        var invoice = await _invoiceRepository.GetByIdWithItemsAsync(id);
         if (invoice == null)
             throw new KeyNotFoundException("Invoice not found");
 
         invoice.Status = InvoiceStatus.Cancelled;
 
-        var updated = await _invoiceRepository.UpdateAsync(invoice);
-        return MapToDto(updated);
+        await _invoiceRepository.UpdateAsync(invoice);
+        var updated = await _invoiceRepository.GetByIdWithItemsAsync(invoice.Id);
+        return MapToDto(updated!);
     }
 
     private static InvoiceDto MapToDto(Invoice invoice)

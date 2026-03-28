@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace DentalClinic.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/treatment-records")]
 public class TreatmentRecordsController : ControllerBase
 {
     private readonly ITreatmentRecordService _service;
