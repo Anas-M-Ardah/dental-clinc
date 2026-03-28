@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout.component';
+import { PortalLayoutComponent } from './layouts/portal-layout/portal-layout.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { PatientsComponent } from './features/patients/patients.component';
 import { PatientFormComponent } from './features/patients/patient-form.component';
@@ -9,6 +10,7 @@ import { DoctorsComponent } from './features/doctors/doctors.component';
 import { TreatmentsComponent } from './features/treatments/treatments.component';
 import { BillingComponent } from './features/billing/billing.component';
 import { TreatmentRecordsComponent } from './features/treatment-records/treatment-records.component';
+import { portalAuthGuard } from './core/guards/portal-auth.guard';
 
 export const routes: Routes = [
   {
@@ -26,6 +28,48 @@ export const routes: Routes = [
       { path: 'treatments', component: TreatmentsComponent },
       { path: 'invoices', component: BillingComponent },
       { path: 'treatment-records', component: TreatmentRecordsComponent }
+    ]
+  },
+  // Patient portal auth pages (no guard, no portal layout)
+  {
+    path: 'portal/login',
+    loadComponent: () => import('./features/portal/auth/portal-login.component').then(m => m.PortalLoginComponent)
+  },
+  {
+    path: 'portal/register',
+    loadComponent: () => import('./features/portal/auth/portal-register.component').then(m => m.PortalRegisterComponent)
+  },
+  // Patient portal pages (guarded, wrapped in PortalLayoutComponent)
+  {
+    path: 'portal',
+    component: PortalLayoutComponent,
+    canActivate: [portalAuthGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/portal/dashboard/portal-dashboard.component').then(m => m.PortalDashboardComponent)
+      },
+      {
+        path: 'appointments',
+        loadComponent: () => import('./features/portal/appointments/portal-appointments.component').then(m => m.PortalAppointmentsComponent)
+      },
+      {
+        path: 'appointments/book',
+        loadComponent: () => import('./features/portal/book-appointment/book-appointment.component').then(m => m.BookAppointmentComponent)
+      },
+      {
+        path: 'invoices',
+        loadComponent: () => import('./features/portal/invoices/portal-invoices.component').then(m => m.PortalInvoicesComponent)
+      },
+      {
+        path: 'treatment-history',
+        loadComponent: () => import('./features/portal/treatment-history/portal-treatment-history.component').then(m => m.PortalTreatmentHistoryComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/portal/profile/portal-profile.component').then(m => m.PortalProfileComponent)
+      }
     ]
   }
 ];

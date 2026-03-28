@@ -1,0 +1,52 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Patient } from '../models/patient.model';
+import { Appointment, AppointmentStatus } from '../models/appointment.model';
+import { Invoice } from '../models/invoice.model';
+import { TreatmentRecord } from '../models/treatment-record.model';
+import { BookAppointmentDto, UpdatePortalProfileDto } from '../models/portal-auth.model';
+import { PagedResult } from './api.service';
+
+@Injectable({ providedIn: 'root' })
+export class PortalApiService {
+  private readonly baseUrl = 'http://localhost:7000/api/portal';
+
+  constructor(private http: HttpClient) {}
+
+  getProfile(): Observable<Patient> {
+    return this.http.get<Patient>(`${this.baseUrl}/profile`);
+  }
+
+  updateProfile(dto: UpdatePortalProfileDto): Observable<Patient> {
+    return this.http.put<Patient>(`${this.baseUrl}/profile`, dto);
+  }
+
+  getMyAppointments(status?: AppointmentStatus, pageNumber = 1, pageSize = 10): Observable<PagedResult<Appointment>> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber)
+      .set('pageSize', pageSize);
+    if (status !== undefined) params = params.set('status', status);
+    return this.http.get<PagedResult<Appointment>>(`${this.baseUrl}/appointments`, { params });
+  }
+
+  bookAppointment(dto: BookAppointmentDto): Observable<Appointment> {
+    return this.http.post<Appointment>(`${this.baseUrl}/appointments`, dto);
+  }
+
+  cancelAppointment(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/appointments/${id}`);
+  }
+
+  getMyInvoices(status?: number, pageNumber = 1, pageSize = 10): Observable<PagedResult<Invoice>> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber)
+      .set('pageSize', pageSize);
+    if (status !== undefined) params = params.set('status', status);
+    return this.http.get<PagedResult<Invoice>>(`${this.baseUrl}/invoices`, { params });
+  }
+
+  getTreatmentHistory(): Observable<TreatmentRecord[]> {
+    return this.http.get<TreatmentRecord[]>(`${this.baseUrl}/treatment-history`);
+  }
+}
