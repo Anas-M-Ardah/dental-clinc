@@ -183,7 +183,7 @@ export class ApiService {
   }
 
   createTreatmentRecord(dto: CreateTreatmentRecordDto): Observable<TreatmentRecord> {
-    return this.http.post<TreatmentRecord>(`${this.baseUrl}/treatment-records`, dto);
+    return this.http.post<TreatmentRecord>(`${this.baseUrl}/treatmentrecords`, dto);
   }
 
   updateTreatmentRecord(id: number, dto: UpdateTreatmentRecordDto): Observable<TreatmentRecord> {
