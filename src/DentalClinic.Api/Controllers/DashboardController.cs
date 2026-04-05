@@ -1,11 +1,13 @@
 using DentalClinic.Application.DTOs;
 using DentalClinic.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DentalClinic.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "AdminOnly")]
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;

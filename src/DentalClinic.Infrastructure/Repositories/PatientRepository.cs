@@ -26,6 +26,26 @@ public class PatientRepository : IPatientRepository
         return await _context.Patients.FindAsync(id);
     }
 
+    public async Task<Patient?> GetByEmailAsync(string email)
+    {
+        return await _context.Patients.FirstOrDefaultAsync(p => p.Email == email);
+    }
+
+    public async Task<Patient?> GetByRefreshTokenAsync(string refreshToken)
+    {
+        return await _context.Patients.FirstOrDefaultAsync(p => p.RefreshToken == refreshToken);
+    }
+
+    public async Task<Patient?> GetByPasswordResetTokenAsync(string token)
+    {
+        return await _context.Patients.FirstOrDefaultAsync(p => p.PasswordResetToken == token);
+    }
+
+    public async Task<Patient?> GetByEmailVerificationTokenAsync(string token)
+    {
+        return await _context.Patients.FirstOrDefaultAsync(p => p.EmailVerificationToken == token);
+    }
+
     public async Task<Patient?> GetByIdWithAppointmentsAsync(int id)
     {
         return await _context.Patients

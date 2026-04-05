@@ -27,6 +27,7 @@ public class InvoiceRepository : IInvoiceRepository
     {
         return await _context.Invoices
             .Include(i => i.Patient)
+            .Include(i => i.Coupon)
             .FirstOrDefaultAsync(i => i.Id == id);
     }
 
@@ -34,16 +35,20 @@ public class InvoiceRepository : IInvoiceRepository
     {
         return await _context.Invoices
             .Include(i => i.Patient)
+            .Include(i => i.Coupon)
             .Include(i => i.Items)
             .ThenInclude(item => item.Treatment)
+            .Include(i => i.Payments)
             .FirstOrDefaultAsync(i => i.Id == id);
     }
 
     public async Task<IEnumerable<Invoice>> GetByPatientAsync(int patientId)
     {
         return await _context.Invoices
+            .Include(i => i.Coupon)
             .Include(i => i.Items)
             .ThenInclude(item => item.Treatment)
+            .Include(i => i.Payments)
             .Where(i => i.PatientId == patientId)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
@@ -53,8 +58,10 @@ public class InvoiceRepository : IInvoiceRepository
     {
         var query = _context.Invoices
             .Include(i => i.Patient)
+            .Include(i => i.Coupon)
             .Include(i => i.Items)
             .ThenInclude(item => item.Treatment)
+            .Include(i => i.Payments)
             .AsQueryable();
 
         if (patientId.HasValue)
@@ -99,5 +106,17 @@ public class InvoiceRepository : IInvoiceRepository
         return await _context.Invoices
             .Where(i => i.Status == InvoiceStatus.Paid && i.PaidAt >= startOfMonth)
             .SumAsync(i => i.TotalAmount);
+    }
+
+    public async Task<IEnumerable<Invoice>> GetOverdueInvoicesAsync()
+    {
+        var now = DateTime.UtcNow;
+        return await _context.Invoices
+            .Include(i => i.Patient)
+            .Where(i => i.DueDate.HasValue
+                && i.DueDate.Value < now
+                && (i.Status == InvoiceStatus.Pending || i.Status == InvoiceStatus.PartiallyPaid))
+            .OrderBy(i => i.DueDate)
+            .ToListAsync();
     }
 }

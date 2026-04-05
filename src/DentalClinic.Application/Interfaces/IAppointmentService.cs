@@ -10,5 +10,6 @@ public interface IAppointmentService
     Task<AvailableSlotsResponseDto> GetAvailableSlotsAsync(int doctorId, DateTime date);
     Task<AppointmentDto> CreateAsync(CreateAppointmentDto dto);
     Task<AppointmentDto> UpdateAsync(int id, UpdateAppointmentDto dto);
+    Task<AppointmentDto> RescheduleAsync(int id, RescheduleAppointmentDto dto);
     Task DeleteAsync(int id);
 }

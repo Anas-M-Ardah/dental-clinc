@@ -1,11 +1,13 @@
 using DentalClinic.Application.DTOs;
 using DentalClinic.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DentalClinic.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Policy = "AdminOnly")]
 public class TreatmentsController : ControllerBase
 {
     private readonly ITreatmentService _treatmentService;
@@ -16,6 +18,7 @@ public class TreatmentsController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<TreatmentDto>>> GetAll()
     {
         var treatments = await _treatmentService.GetAllAsync();

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Patient } from '../models/patient.model';
 import { Appointment, AppointmentStatus } from '../models/appointment.model';
-import { Invoice } from '../models/invoice.model';
+import { Invoice, PortalPaymentDto, PaymentTransaction } from '../models/invoice.model';
 import { TreatmentRecord } from '../models/treatment-record.model';
 import { BookAppointmentDto, UpdatePortalProfileDto } from '../models/portal-auth.model';
 import { PagedResult } from './api.service';
@@ -46,7 +46,19 @@ export class PortalApiService {
     return this.http.get<PagedResult<Invoice>>(`${this.baseUrl}/invoices`, { params });
   }
 
+  getMyInvoice(id: number): Observable<Invoice> {
+    return this.http.get<Invoice>(`${this.baseUrl}/invoices/${id}`);
+  }
+
+  payInvoice(id: number, dto: PortalPaymentDto): Observable<PaymentTransaction> {
+    return this.http.post<PaymentTransaction>(`${this.baseUrl}/invoices/${id}/pay`, dto);
+  }
+
   getTreatmentHistory(): Observable<TreatmentRecord[]> {
     return this.http.get<TreatmentRecord[]>(`${this.baseUrl}/treatment-history`);
+  }
+
+  updateNotificationPreferences(dto: { emailNotificationsEnabled: boolean; smsNotificationsEnabled: boolean }): Observable<Patient> {
+    return this.http.put<Patient>(`${this.baseUrl}/notification-preferences`, dto);
   }
 }

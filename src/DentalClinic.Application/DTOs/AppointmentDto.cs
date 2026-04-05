@@ -69,4 +69,5 @@ public class AvailableSlotsResponseDto
     public DateTime Date { get; set; }
     public int DoctorId { get; set; }
     public List<AvailableSlotDto> AvailableSlots { get; set; } = new();
+    public string? Message { get; set; }
 }

@@ -17,6 +17,7 @@ export interface PatientRegisterDto {
 
 export interface AuthResponseDto {
   token: string;
+  refreshToken: string;
   expiresAt: string;
   patientId: number;
   fullName: string;

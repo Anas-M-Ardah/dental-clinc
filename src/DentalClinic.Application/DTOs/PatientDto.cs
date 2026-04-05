@@ -15,6 +15,14 @@ public class PatientDto
     public string? Address { get; set; }
     public string? MedicalHistory { get; set; }
     public DateTime CreatedAt { get; set; }
+    public bool EmailNotificationsEnabled { get; set; }
+    public bool SmsNotificationsEnabled { get; set; }
+}
+
+public class UpdateNotificationPreferencesDto
+{
+    public bool EmailNotificationsEnabled { get; set; }
+    public bool SmsNotificationsEnabled { get; set; }
 }
 
 public class CreatePatientDto

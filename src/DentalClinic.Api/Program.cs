@@ -1,10 +1,16 @@
+using System.Text;
 using DentalClinic.Api.Middleware;
 using DentalClinic.Application.Interfaces;
 using DentalClinic.Application.Services;
+using DentalClinic.Domain.Entities;
+using DentalClinic.Domain.Enums;
 using DentalClinic.Domain.Interfaces;
 using DentalClinic.Infrastructure.Data;
 using DentalClinic.Infrastructure.Repositories;
+using DentalClinic.Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +35,44 @@ builder.Services.AddScoped<ITreatmentService, TreatmentService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ITreatmentRecordService, TreatmentRecordService>();
+builder.Services.AddScoped<IPatientAuthService, PatientAuthService>();
+builder.Services.AddScoped<IAdminUserRepository, AdminUserRepository>();
+builder.Services.AddScoped<IAdminAuthService, AdminAuthService>();
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IDoctorScheduleRepository, DoctorScheduleRepository>();
+builder.Services.AddScoped<IDoctorScheduleService, DoctorScheduleService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+builder.Services.AddScoped<ICouponService, CouponService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("PatientOnly", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireRole("patient"));
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireRole("admin"));
+});
 
 builder.Services.AddCors(options =>
 {
@@ -51,13 +95,58 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<DentalClinicDbContext>();
-    context.Database.EnsureCreated();
+    context.Database.Migrate();
+
+    // Seed default admin if none exists
+    if (!context.AdminUsers.Any())
+    {
+        context.AdminUsers.Add(new AdminUser
+        {
+            FullName = "System Admin",
+            Email = "admin@clinic.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+            Role = AdminRole.Admin,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        });
+        context.SaveChanges();
+    }
+
+    // Seed default working hours for doctors that don't have any
+    var doctorsWithoutHours = context.Doctors
+        .Where(d => !context.DoctorWorkingHours.Any(wh => wh.DoctorId == d.Id))
+        .Select(d => d.Id)
+        .ToList();
+
+    if (doctorsWithoutHours.Any())
+    {
+        var workDays = new[] { DayOfWeek.Sunday, DayOfWeek.Monday, DayOfWeek.Tuesday,
+                               DayOfWeek.Wednesday, DayOfWeek.Thursday };
+        foreach (var doctorId in doctorsWithoutHours)
+        {
+            foreach (var day in workDays)
+            {
+                context.DoctorWorkingHours.Add(new DoctorWorkingHours
+                {
+                    DoctorId = doctorId,
+                    DayOfWeek = day,
+                    StartTime = new TimeSpan(8, 0, 0),
+                    EndTime = new TimeSpan(17, 0, 0),
+                    SlotDurationMinutes = 30,
+                    BufferMinutes = 0,
+                    IsWorkingDay = true
+                });
+            }
+        }
+        context.SaveChanges();
+    }
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseCors("AllowFrontend");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

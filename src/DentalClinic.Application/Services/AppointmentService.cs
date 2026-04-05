@@ -1,4 +1,3 @@
-using System.Linq;
 using DentalClinic.Application.DTOs;
 using DentalClinic.Application.Interfaces;
 using DentalClinic.Domain.Entities;
@@ -13,23 +12,26 @@ public class AppointmentService : IAppointmentService
     private readonly IPatientRepository _patientRepository;
     private readonly IDoctorRepository _doctorRepository;
     private readonly ITreatmentRepository _treatmentRepository;
+    private readonly IDoctorScheduleRepository _scheduleRepository;
 
     public AppointmentService(
         IAppointmentRepository appointmentRepository,
         IPatientRepository patientRepository,
         IDoctorRepository doctorRepository,
-        ITreatmentRepository treatmentRepository)
+        ITreatmentRepository treatmentRepository,
+        IDoctorScheduleRepository scheduleRepository)
     {
         _appointmentRepository = appointmentRepository;
         _patientRepository = patientRepository;
         _doctorRepository = doctorRepository;
         _treatmentRepository = treatmentRepository;
+        _scheduleRepository = scheduleRepository;
     }
 
     public async Task<PagedResultDto<AppointmentDto>> GetAllAsync(int? doctorId, int? patientId, DateTime? date, AppointmentStatus? status, int pageNumber, int pageSize)
     {
         var appointments = await _appointmentRepository.GetFilteredAsync(doctorId, patientId, date, status);
-        
+
         var totalCount = appointments.Count();
         var pagedAppointments = appointments
             .Skip((pageNumber - 1) * pageSize)
@@ -57,11 +59,81 @@ public class AppointmentService : IAppointmentService
         if (doctor == null)
             throw new KeyNotFoundException("Doctor not found");
 
-        var existingAppointments = await _appointmentRepository.GetByDoctorAndDateAsync(doctorId, date);
-        var bookedSlots = existingAppointments.Select(a => a.StartTime).ToHashSet();
+        // Check if doctor is on leave
+        var isOnLeave = await _scheduleRepository.IsOnLeaveAsync(doctorId, date);
+        if (isOnLeave)
+        {
+            return new AvailableSlotsResponseDto
+            {
+                Date = date,
+                DoctorId = doctorId,
+                AvailableSlots = new List<AvailableSlotDto>(),
+                Message = "Doctor is on leave on this date."
+            };
+        }
 
-        var allSlots = GenerateTimeSlots();
-        var availableSlots = allSlots.Where(s => !bookedSlots.Contains(s.StartTime)).ToList();
+        // Check if within booking window
+        if (date.Date < DateTime.Today)
+        {
+            return new AvailableSlotsResponseDto
+            {
+                Date = date,
+                DoctorId = doctorId,
+                AvailableSlots = new List<AvailableSlotDto>(),
+                Message = "Cannot book appointments in the past."
+            };
+        }
+
+        if (date.Date > DateTime.Today.AddDays(doctor.MaxFutureBookingDays))
+        {
+            return new AvailableSlotsResponseDto
+            {
+                Date = date,
+                DoctorId = doctorId,
+                AvailableSlots = new List<AvailableSlotDto>(),
+                Message = $"Cannot book more than {doctor.MaxFutureBookingDays} days in advance."
+            };
+        }
+
+        // Get working hours for the day of week
+        var workingHours = await _scheduleRepository.GetWorkingHoursForDayAsync(doctorId, date.DayOfWeek);
+        if (workingHours == null || !workingHours.IsWorkingDay)
+        {
+            return new AvailableSlotsResponseDto
+            {
+                Date = date,
+                DoctorId = doctorId,
+                AvailableSlots = new List<AvailableSlotDto>(),
+                Message = "Doctor does not work on this day."
+            };
+        }
+
+        // Get existing appointments (non-cancelled)
+        var existingAppointments = (await _appointmentRepository.GetByDoctorAndDateAsync(doctorId, date))
+            .Where(a => a.Status != AppointmentStatus.Cancelled)
+            .ToList();
+
+        // Generate slots from working hours
+        var allSlots = GenerateTimeSlotsFromWorkingHours(workingHours);
+
+        // Filter out slots that conflict with existing appointments
+        var minAdvanceTime = DateTime.UtcNow.AddHours(doctor.MinAdvanceBookingHours);
+        var availableSlots = allSlots.Where(slot =>
+        {
+            // Check minimum advance booking time
+            var slotDateTime = date.Date.Add(slot.StartTime);
+            if (slotDateTime < minAdvanceTime)
+                return false;
+
+            // Check for conflicts with existing appointments (time range overlap)
+            foreach (var existing in existingAppointments)
+            {
+                if (slot.StartTime < existing.EndTime && slot.EndTime > existing.StartTime)
+                    return false;
+            }
+
+            return true;
+        }).ToList();
 
         return new AvailableSlotsResponseDto
         {
@@ -85,13 +157,57 @@ public class AppointmentService : IAppointmentService
         if (treatment == null)
             throw new KeyNotFoundException("Treatment not found");
 
+        var appointmentDate = dto.AppointmentDate.Date;
+        var endTime = dto.StartTime.Add(TimeSpan.FromMinutes(treatment.DurationMinutes));
+
+        // Validate: not in the past
+        if (appointmentDate < DateTime.Today)
+            throw new InvalidOperationException("Cannot book appointments in the past.");
+
+        // Validate: minimum advance booking
+        var slotDateTime = appointmentDate.Add(dto.StartTime);
+        if (slotDateTime < DateTime.UtcNow.AddHours(doctor.MinAdvanceBookingHours))
+            throw new InvalidOperationException($"Appointments must be booked at least {doctor.MinAdvanceBookingHours} hours in advance.");
+
+        // Validate: max future booking
+        if (appointmentDate > DateTime.Today.AddDays(doctor.MaxFutureBookingDays))
+            throw new InvalidOperationException($"Cannot book more than {doctor.MaxFutureBookingDays} days in advance.");
+
+        // Validate: doctor is not on leave
+        var isOnLeave = await _scheduleRepository.IsOnLeaveAsync(dto.DoctorId, appointmentDate);
+        if (isOnLeave)
+            throw new InvalidOperationException("Doctor is on leave on this date.");
+
+        // Validate: working hours
+        var workingHours = await _scheduleRepository.GetWorkingHoursForDayAsync(dto.DoctorId, appointmentDate.DayOfWeek);
+        if (workingHours == null || !workingHours.IsWorkingDay)
+            throw new InvalidOperationException("Doctor does not work on this day.");
+
+        if (dto.StartTime < workingHours.StartTime || endTime > workingHours.EndTime)
+            throw new InvalidOperationException("Appointment time is outside doctor's working hours.");
+
+        // Validate: treatment duration fits within working hours
+        if (endTime > workingHours.EndTime)
+            throw new InvalidOperationException("Treatment duration exceeds available time in the selected slot.");
+
+        // Validate: no conflicts with existing appointments
+        var existingAppointments = (await _appointmentRepository.GetByDoctorAndDateAsync(dto.DoctorId, appointmentDate))
+            .Where(a => a.Status != AppointmentStatus.Cancelled)
+            .ToList();
+
+        foreach (var existing in existingAppointments)
+        {
+            if (dto.StartTime < existing.EndTime && endTime > existing.StartTime)
+                throw new InvalidOperationException("This time slot conflicts with an existing appointment.");
+        }
+
         var appointment = new Appointment
         {
             PatientId = dto.PatientId,
             DoctorId = dto.DoctorId,
-            AppointmentDate = dto.AppointmentDate,
+            AppointmentDate = appointmentDate,
             StartTime = dto.StartTime,
-            EndTime = dto.StartTime.Add(TimeSpan.FromMinutes(treatment.DurationMinutes)),
+            EndTime = endTime,
             TreatmentId = dto.TreatmentId,
             Notes = dto.Notes,
             Status = AppointmentStatus.Pending,
@@ -125,6 +241,56 @@ public class AppointmentService : IAppointmentService
         return MapToDto(updated);
     }
 
+    public async Task<AppointmentDto> RescheduleAsync(int id, RescheduleAppointmentDto dto)
+    {
+        var appointment = await _appointmentRepository.GetByIdAsync(id);
+        if (appointment == null)
+            throw new KeyNotFoundException("Appointment not found");
+
+        if (appointment.Status == AppointmentStatus.Completed || appointment.Status == AppointmentStatus.Cancelled)
+            throw new InvalidOperationException("Cannot reschedule a completed or cancelled appointment.");
+
+        var treatment = await _treatmentRepository.GetByIdAsync(appointment.TreatmentId);
+        var endTime = dto.NewStartTime.Add(TimeSpan.FromMinutes(treatment?.DurationMinutes ?? 30));
+        var newDate = dto.NewDate.Date;
+
+        // Validate: not in the past
+        if (newDate < DateTime.Today)
+            throw new InvalidOperationException("Cannot reschedule to a past date.");
+
+        // Validate: doctor is not on leave
+        var isOnLeave = await _scheduleRepository.IsOnLeaveAsync(appointment.DoctorId, newDate);
+        if (isOnLeave)
+            throw new InvalidOperationException("Doctor is on leave on this date.");
+
+        // Validate: working hours
+        var workingHours = await _scheduleRepository.GetWorkingHoursForDayAsync(appointment.DoctorId, newDate.DayOfWeek);
+        if (workingHours == null || !workingHours.IsWorkingDay)
+            throw new InvalidOperationException("Doctor does not work on this day.");
+
+        if (dto.NewStartTime < workingHours.StartTime || endTime > workingHours.EndTime)
+            throw new InvalidOperationException("Appointment time is outside doctor's working hours.");
+
+        // Validate: no conflicts (excluding current appointment)
+        var existingAppointments = (await _appointmentRepository.GetByDoctorAndDateAsync(appointment.DoctorId, newDate))
+            .Where(a => a.Status != AppointmentStatus.Cancelled && a.Id != id)
+            .ToList();
+
+        foreach (var existing in existingAppointments)
+        {
+            if (dto.NewStartTime < existing.EndTime && endTime > existing.StartTime)
+                throw new InvalidOperationException("This time slot conflicts with an existing appointment.");
+        }
+
+        appointment.AppointmentDate = newDate;
+        appointment.StartTime = dto.NewStartTime;
+        appointment.EndTime = endTime;
+        appointment.UpdatedAt = DateTime.UtcNow;
+
+        var updated = await _appointmentRepository.UpdateAsync(appointment);
+        return MapToDto(updated);
+    }
+
     public async Task DeleteAsync(int id)
     {
         await _appointmentRepository.DeleteAsync(id);
@@ -150,20 +316,21 @@ public class AppointmentService : IAppointmentService
         };
     }
 
-    private static List<AvailableSlotDto> GenerateTimeSlots()
+    private static List<AvailableSlotDto> GenerateTimeSlotsFromWorkingHours(DoctorWorkingHours workingHours)
     {
         var slots = new List<AvailableSlotDto>();
-        var startTime = new TimeSpan(8, 0, 0);
-        var endTime = new TimeSpan(17, 0, 0);
+        var slotDuration = TimeSpan.FromMinutes(workingHours.SlotDurationMinutes);
+        var buffer = TimeSpan.FromMinutes(workingHours.BufferMinutes);
+        var currentTime = workingHours.StartTime;
 
-        while (startTime < endTime)
+        while (currentTime.Add(slotDuration) <= workingHours.EndTime)
         {
             slots.Add(new AvailableSlotDto
             {
-                StartTime = startTime,
-                EndTime = startTime.Add(TimeSpan.FromMinutes(30))
+                StartTime = currentTime,
+                EndTime = currentTime.Add(slotDuration)
             });
-            startTime = startTime.Add(TimeSpan.FromMinutes(30));
+            currentTime = currentTime.Add(slotDuration).Add(buffer);
         }
 
         return slots;

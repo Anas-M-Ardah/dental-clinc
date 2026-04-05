@@ -9,6 +9,8 @@ export interface Patient {
   address?: string;
   medicalHistory?: string;
   createdAt: string;
+  emailNotificationsEnabled: boolean;
+  smsNotificationsEnabled: boolean;
 }
 
 export interface CreatePatientDto {
