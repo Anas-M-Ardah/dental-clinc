@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { PortalAuthService } from '../../core/services/portal-auth.service';
+import { NotificationService } from '../../core/services/notification.service';
+import { NotificationDto } from '../../core/models/notification.model';
 
 @Component({
   selector: 'app-portal-layout',
@@ -172,6 +174,78 @@ import { PortalAuthService } from '../../core/services/portal-auth.service';
     }
     .patient-badge svg { opacity: 0.6; }
 
+    /* Notification Bell */
+    .notification-wrapper { position: relative; }
+    .notification-btn {
+      width: 40px; height: 40px; display: flex;
+      align-items: center; justify-content: center;
+      background: var(--gray-50); border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); cursor: pointer;
+      transition: all var(--transition-fast); color: var(--gray-600); position: relative;
+    }
+    .notification-btn:hover {
+      background: var(--primary-light); border-color: var(--primary-200);
+      color: var(--primary);
+    }
+    .notification-btn svg { width: 18px; height: 18px; }
+    .badge-count {
+      position: absolute; top: -4px; right: -4px;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      background: var(--danger); color: #fff;
+      font-size: 0.65rem; font-weight: 700;
+      border-radius: var(--radius-full); display: flex;
+      align-items: center; justify-content: center;
+      border: 2px solid #fff;
+    }
+    .notification-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      width: 360px; max-height: 420px; overflow-y: auto;
+      background: #fff; border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-xl);
+      z-index: 200; animation: dropIn 0.2s ease-out;
+    }
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .notif-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border-bottom: 1px solid var(--border-color);
+    }
+    .notif-header-title { font-size: 0.85rem; font-weight: 700; color: var(--gray-900); }
+    .notif-mark-all {
+      font-size: 0.75rem; color: var(--primary); cursor: pointer;
+      background: none; border: none; font-weight: 600; font-family: inherit;
+    }
+    .notif-mark-all:hover { text-decoration: underline; }
+    .notif-item {
+      display: flex; gap: 12px; padding: 12px 16px;
+      border-bottom: 1px solid var(--border-light); cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .notif-item:hover { background: var(--gray-50); }
+    .notif-item.unread { background: rgba(var(--primary-rgb), 0.04); }
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .notif-dot.unread { background: var(--primary); }
+    .notif-dot.read { background: transparent; }
+    .notif-content { flex: 1; min-width: 0; }
+    .notif-title {
+      font-size: 0.82rem; font-weight: 600; color: var(--gray-900);
+      margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .notif-message {
+      font-size: 0.78rem; color: var(--gray-500); line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .notif-time { font-size: 0.68rem; color: var(--gray-400); margin-top: 4px; }
+    .notif-empty {
+      padding: 32px 16px; text-align: center; color: var(--gray-400);
+      font-size: 0.85rem;
+    }
+
     .portal-page-content {
       flex: 1;
       padding: 28px 32px;
@@ -315,6 +389,30 @@ import { PortalAuthService } from '../../core/services/portal-auth.service';
             <h5 class="header-title">Patient Portal</h5>
           </div>
           <div class="header-right">
+            <div class="notification-wrapper">
+              <button class="notification-btn" (click)="toggleNotifications($event)" aria-label="Notifications">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span class="badge-count" *ngIf="unreadCount > 0">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
+              </button>
+              <div class="notification-dropdown" *ngIf="showNotifications">
+                <div class="notif-header">
+                  <span class="notif-header-title">Notifications</span>
+                  <button class="notif-mark-all" *ngIf="unreadCount > 0" (click)="markAllRead()">Mark all read</button>
+                </div>
+                <div *ngIf="notifications.length === 0" class="notif-empty">No notifications yet</div>
+                <div *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.isRead" (click)="markRead(n)">
+                  <div class="notif-dot" [class.unread]="!n.isRead" [class.read]="n.isRead"></div>
+                  <div class="notif-content">
+                    <div class="notif-title">{{ n.title }}</div>
+                    <div class="notif-message">{{ n.message }}</div>
+                    <div class="notif-time">{{ getTimeAgo(n.createdAt) }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <span class="patient-badge">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -331,16 +429,67 @@ import { PortalAuthService } from '../../core/services/portal-auth.service';
     </div>
   `
 })
-export class PortalLayoutComponent {
+export class PortalLayoutComponent implements OnInit {
   patientName: string;
   sidebarCollapsed = false;
+  showNotifications = false;
+  unreadCount = 0;
+  notifications: NotificationDto[] = [];
 
-  constructor(private authService: PortalAuthService) {
+  constructor(
+    private authService: PortalAuthService,
+    private notificationService: NotificationService
+  ) {
     this.patientName = this.authService.getFullName();
+  }
+
+  ngOnInit(): void {
+    this.notificationService.unreadCount.subscribe(count => this.unreadCount = count);
+    this.notificationService.startPolling(60000);
   }
 
   toggleSidebar(): void {
     this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+
+  toggleNotifications(event: Event): void {
+    event.stopPropagation();
+    this.showNotifications = !this.showNotifications;
+    if (this.showNotifications) {
+      this.notificationService.getNotifications().subscribe(n => this.notifications = n);
+    }
+  }
+
+  @HostListener('document:click')
+  closeNotifications(): void {
+    this.showNotifications = false;
+  }
+
+  markRead(n: NotificationDto): void {
+    if (!n.isRead) {
+      this.notificationService.markAsRead(n.id).subscribe(() => {
+        n.isRead = true;
+        this.unreadCount = Math.max(0, this.unreadCount - 1);
+      });
+    }
+  }
+
+  markAllRead(): void {
+    this.notificationService.markAllAsRead().subscribe(() => {
+      this.notifications.forEach(n => n.isRead = true);
+      this.unreadCount = 0;
+    });
+  }
+
+  getTimeAgo(dateStr: string): string {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
   }
 
   logout(): void {

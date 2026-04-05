@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet ef:*)",
+      "Bash(dotnet add:*)",
+      "Bash(dotnet build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx ng:*)",
+      "Bash(grep -r \"payment\\\\|email\\\\|notification\\\\|sms\\\\|reminder\" 'C:\\\\Anas-AlArdah\\\\Side Projects\\\\Dental Clinc Clean\\\\src' --include=*.cs)",
+      "Bash(find 'C:\\\\Anas-AlArdah\\\\Side Projects\\\\Dental Clinc Clean\\\\src' -name *report* -o -name *audit* -o -name *log*)",
+      "Bash(grep -i \"\\\\.cs$\")",
+      "Bash(find 'C:\\\\Anas-AlArdah\\\\Side Projects\\\\Dental Clinc Clean\\\\src' -path */Entities/* -name *.cs -type f)",
+      "Bash(taskkill /PID 21836 /F)",
+      "Bash(taskkill:*)",
+      "Bash(tasklist)",
+      "Bash(find /c/Anas-AlArdah/Side Projects/Dental Clinc Clean/dental-clinic-frontend -type f -name *invoice* -o -name *payment*)",
+      "Bash(grep -E \"\\\\.\\(ts|html\\)$\")",
+      "Bash(find /c/Anas-AlArdah/Side Projects/Dental Clinc Clean/src -name *Migration* -o -name *Migrations*)"
+    ]
+  }
+}

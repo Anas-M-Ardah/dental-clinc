@@ -16,6 +16,27 @@ public class Patient
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
+    // Patient portal auth fields
+    public string? PasswordHash { get; set; }
+    public bool IsPortalEnabled { get; set; } = false;
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiry { get; set; }
+    public int FailedLoginAttempts { get; set; }
+    public DateTime? LockoutEnd { get; set; }
+
+    // Email verification
+    public bool IsEmailVerified { get; set; } = false;
+    public string? EmailVerificationToken { get; set; }
+    public DateTime? EmailVerificationTokenExpiry { get; set; }
+
+    // Password reset
+    public string? PasswordResetToken { get; set; }
+    public DateTime? PasswordResetTokenExpiry { get; set; }
+
+    // Notification preferences
+    public bool EmailNotificationsEnabled { get; set; } = true;
+    public bool SmsNotificationsEnabled { get; set; } = false;
+
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 }

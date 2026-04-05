@@ -5,7 +5,7 @@ import { Patient, CreatePatientDto, UpdatePatientDto } from '../models/patient.m
 import { Doctor } from '../models/doctor.model';
 import { Appointment, CreateAppointmentDto, UpdateAppointmentDto, AvailableSlot } from '../models/appointment.model';
 import { Treatment, CreateTreatmentDto } from '../models/treatment.model';
-import { Invoice, CreateInvoiceDto, PayInvoiceDto } from '../models/invoice.model';
+import { Invoice, CreateInvoiceDto, PayInvoiceDto, MakePaymentDto, RefundPaymentDto, PaymentTransaction, Coupon, CreateCouponDto, CouponValidationResult } from '../models/invoice.model';
 import { TreatmentRecord, CreateTreatmentRecordDto, UpdateTreatmentRecordDto } from '../models/treatment-record.model';
 
 export interface PagedResult<T> {
@@ -74,6 +74,26 @@ export class ApiService {
     let params = new HttpParams();
     if (date) params = params.set('date', date);
     return this.http.get<any>(`${this.baseUrl}/doctors/${id}/schedule`, { params });
+  }
+
+  getDoctorWorkingHours(doctorId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/doctors/${doctorId}/schedule/working-hours`);
+  }
+
+  upsertDoctorWorkingHours(doctorId: number, dto: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/doctors/${doctorId}/schedule/working-hours`, dto);
+  }
+
+  getDoctorLeaves(doctorId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/doctors/${doctorId}/schedule/leaves`);
+  }
+
+  addDoctorLeave(doctorId: number, dto: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/doctors/${doctorId}/schedule/leaves`, dto);
+  }
+
+  deleteDoctorLeave(doctorId: number, leaveId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/doctors/${doctorId}/schedule/leaves/${leaveId}`);
   }
 
   // Appointments
@@ -158,6 +178,43 @@ export class ApiService {
 
   cancelInvoice(id: number): Observable<Invoice> {
     return this.http.patch<Invoice>(`${this.baseUrl}/invoices/${id}/cancel`, {});
+  }
+
+  makePayment(invoiceId: number, dto: MakePaymentDto): Observable<PaymentTransaction> {
+    return this.http.post<PaymentTransaction>(`${this.baseUrl}/invoices/${invoiceId}/payments`, dto);
+  }
+
+  getPayments(invoiceId: number): Observable<PaymentTransaction[]> {
+    return this.http.get<PaymentTransaction[]>(`${this.baseUrl}/invoices/${invoiceId}/payments`);
+  }
+
+  refundPayment(invoiceId: number, dto: RefundPaymentDto): Observable<PaymentTransaction> {
+    return this.http.post<PaymentTransaction>(`${this.baseUrl}/invoices/${invoiceId}/refund`, dto);
+  }
+
+  // Coupons
+  getCoupons(): Observable<Coupon[]> {
+    return this.http.get<Coupon[]>(`${this.baseUrl}/coupons`);
+  }
+
+  getCoupon(id: number): Observable<Coupon> {
+    return this.http.get<Coupon>(`${this.baseUrl}/coupons/${id}`);
+  }
+
+  createCoupon(dto: CreateCouponDto): Observable<Coupon> {
+    return this.http.post<Coupon>(`${this.baseUrl}/coupons`, dto);
+  }
+
+  updateCoupon(id: number, dto: CreateCouponDto): Observable<Coupon> {
+    return this.http.put<Coupon>(`${this.baseUrl}/coupons/${id}`, dto);
+  }
+
+  deleteCoupon(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/coupons/${id}`);
+  }
+
+  validateCoupon(code: string, amount: number): Observable<CouponValidationResult> {
+    return this.http.post<CouponValidationResult>(`${this.baseUrl}/coupons/validate?amount=${amount}`, { couponCode: code });
   }
 
   // Dashboard

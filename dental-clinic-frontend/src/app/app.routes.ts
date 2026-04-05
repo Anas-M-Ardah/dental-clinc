@@ -9,13 +9,22 @@ import { AppointmentFormComponent } from './features/appointments/appointment-fo
 import { DoctorsComponent } from './features/doctors/doctors.component';
 import { TreatmentsComponent } from './features/treatments/treatments.component';
 import { BillingComponent } from './features/billing/billing.component';
+import { CouponsComponent } from './features/coupons/coupons.component';
 import { TreatmentRecordsComponent } from './features/treatment-records/treatment-records.component';
 import { portalAuthGuard } from './core/guards/portal-auth.guard';
+import { adminAuthGuard } from './core/guards/admin-auth.guard';
 
 export const routes: Routes = [
+  // Admin login page (no guard, no layout)
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/admin-login.component').then(m => m.AdminLoginComponent)
+  },
+  // Admin panel (guarded)
   {
     path: '',
     component: MainLayoutComponent,
+    canActivate: [adminAuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
@@ -27,6 +36,7 @@ export const routes: Routes = [
       { path: 'doctors', component: DoctorsComponent },
       { path: 'treatments', component: TreatmentsComponent },
       { path: 'invoices', component: BillingComponent },
+      { path: 'coupons', component: CouponsComponent },
       { path: 'treatment-records', component: TreatmentRecordsComponent }
     ]
   },

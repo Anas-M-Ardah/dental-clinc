@@ -14,4 +14,5 @@ public interface IInvoiceRepository
     Task<Invoice> UpdateAsync(Invoice invoice);
     Task<int> GetPendingCountAsync();
     Task<decimal> GetMonthlyRevenueAsync();
+    Task<IEnumerable<Invoice>> GetOverdueInvoicesAsync();
 }

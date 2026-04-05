@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { AdminAuthService } from '../../core/services/admin-auth.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -116,6 +117,19 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" routerLink="/coupons" routerLinkActive="active" [attr.title]="sidebarCollapsed ? 'Coupons' : null">
+                  <span class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
+                      <path d="M13 5v2"/>
+                      <path d="M13 17v2"/>
+                      <path d="M13 11v2"/>
+                    </svg>
+                  </span>
+                  <span class="nav-text" *ngIf="!sidebarCollapsed">Coupons</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" routerLink="/treatment-records" routerLinkActive="active" [attr.title]="sidebarCollapsed ? ('nav.treatmentRecords' | translate) : null">
                   <span class="nav-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -170,6 +184,13 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
               </svg>
               <span>{{ currentLang === 'en' ? 'العربية' : 'English' }}</span>
             </button>
+            <button class="lang-btn" (click)="logout()" aria-label="Logout">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+              <span>{{ currentLang === 'en' ? 'Logout' : 'خروج' }}</span>
+            </button>
           </div>
         </header>
 
@@ -185,7 +206,10 @@ export class MainLayoutComponent {
   currentLang = 'en';
   sidebarCollapsed = false;
 
-  constructor(private translationService: TranslationService) {
+  constructor(
+    private translationService: TranslationService,
+    private adminAuthService: AdminAuthService
+  ) {
     this.currentLang = this.translationService.currentLanguage;
   }
 
@@ -197,5 +221,9 @@ export class MainLayoutComponent {
     const newLang = this.currentLang === 'en' ? 'ar' : 'en';
     this.translationService.setLanguage(newLang);
     this.currentLang = newLang;
+  }
+
+  logout() {
+    this.adminAuthService.logout();
   }
 }

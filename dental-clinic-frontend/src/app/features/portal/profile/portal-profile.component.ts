@@ -91,6 +91,40 @@ import { Patient } from '../../../core/models/patient.model';
       padding: 10px; background: var(--danger-light);
       border-radius: var(--radius-sm);
     }
+
+    .section-title {
+      font-size: 1rem; font-weight: 700; color: var(--gray-900);
+      margin: 0 0 16px; letter-spacing: -0.01em;
+    }
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--border-light);
+    }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label { font-size: 0.85rem; color: var(--gray-700); font-weight: 500; }
+    .toggle-desc { font-size: 0.75rem; color: var(--gray-400); margin-top: 2px; }
+    .toggle-switch {
+      position: relative; width: 44px; height: 24px; cursor: pointer;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--gray-300); border-radius: 24px;
+      transition: background var(--transition-fast);
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%;
+      transition: transform var(--transition-fast);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--primary);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
   `],
   template: `
     <h1 class="page-title">My Profile</h1>
@@ -138,6 +172,30 @@ import { Patient } from '../../../core/models/patient.model';
         </div>
         <div class="error-msg" *ngIf="errorMsg">{{ errorMsg }}</div>
       </form>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title">Notification Preferences</h3>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Email Notifications</div>
+          <div class="toggle-desc">Receive appointment confirmations, invoices, and payment receipts via email</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="patient.emailNotificationsEnabled" (change)="toggleEmailNotifications()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">SMS Notifications</div>
+          <div class="toggle-desc">Receive appointment reminders via text message</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="patient.smsNotificationsEnabled" (change)="toggleSmsNotifications()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
     </div>
   `
 })
@@ -180,6 +238,30 @@ export class PortalProfileComponent implements OnInit {
         this.saving = false;
         this.errorMsg = 'Failed to update profile. Please try again.';
       }
+    });
+  }
+
+  toggleEmailNotifications(): void {
+    if (!this.patient) return;
+    const newVal = !this.patient.emailNotificationsEnabled;
+    this.portalApi.updateNotificationPreferences({
+      emailNotificationsEnabled: newVal,
+      smsNotificationsEnabled: this.patient.smsNotificationsEnabled
+    }).subscribe({
+      next: p => this.patient = p,
+      error: () => {}
+    });
+  }
+
+  toggleSmsNotifications(): void {
+    if (!this.patient) return;
+    const newVal = !this.patient.smsNotificationsEnabled;
+    this.portalApi.updateNotificationPreferences({
+      emailNotificationsEnabled: this.patient.emailNotificationsEnabled,
+      smsNotificationsEnabled: newVal
+    }).subscribe({
+      next: p => this.patient = p,
+      error: () => {}
     });
   }
 }
