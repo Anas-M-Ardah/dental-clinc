@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { PortalAuthService } from '../../core/services/portal-auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { NotificationDto } from '../../core/models/notification.model';
+import { OfflineBannerComponent } from '../../shared/offline-banner.component';
+import { UpdateBannerComponent } from '../../shared/update-banner.component';
 
 @Component({
   selector: 'app-portal-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, OfflineBannerComponent, UpdateBannerComponent],
   styles: [`
     .portal-wrapper {
       display: flex;
@@ -270,6 +272,8 @@ import { NotificationDto } from '../../core/models/notification.model';
     }
   `],
   template: `
+    <app-offline-banner></app-offline-banner>
+    <app-update-banner></app-update-banner>
     <div class="portal-wrapper">
       <!-- Sidebar -->
       <aside class="portal-sidebar" [class.collapsed]="sidebarCollapsed">

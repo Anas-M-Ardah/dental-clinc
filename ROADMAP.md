@@ -21,9 +21,9 @@ dental-clinic-frontend/        # Angular 19 SPA
   app/layouts/                 # MainLayout (admin), PortalLayout (patient)
 ```
 
-**Entities**: Patient, Doctor, Appointment, Treatment, Invoice, InvoiceItem, TreatmentRecord, Document, PatientAllergy, PatientMedication, PatientCondition, FamilyMedicalHistory, PatientSurvey
-**Enums**: AppointmentStatus (6), InvoiceStatus (4), Gender (2), DocumentType (6)
-**Controllers**: 12 (Patients, Doctors, Appointments, Treatments, Invoices, TreatmentRecords, Dashboard, PatientAuth, PatientPortal, Reports, Documents, MedicalHistory)
+**Entities**: Patient, Doctor, Appointment, Treatment, Invoice, InvoiceItem, TreatmentRecord, Document, PatientAllergy, PatientMedication, PatientCondition, FamilyMedicalHistory, PatientSurvey, AuditLog
+**Enums**: AppointmentStatus (6), InvoiceStatus (4), Gender (2), DocumentType (6), AdminRole
+**Controllers**: 14 (Patients, Doctors, Appointments, Treatments, Invoices, TreatmentRecords, Dashboard, PatientAuth, AdminAuth, PatientPortal, Reports, Documents, MedicalHistory, AdminUsers)
 
 ---
 
@@ -162,19 +162,38 @@ dental-clinic-frontend/        # Angular 19 SPA
 ### Phase 8 — Infrastructure & Code Quality
 > Priority: **Low** — Technical debt and production readiness
 
-- [ ] Add structured logging (Serilog or NLog)
-- [ ] Add audit trail for sensitive operations (who changed what, when)
+- [x] Add structured logging (Serilog with console + rolling file sinks)
+- [x] Add audit trail for sensitive operations (AuditLog table, AuditMiddleware)
 - [ ] Add API versioning (`/api/v1/...`)
-- [ ] Add rate limiting on authentication endpoints
-- [ ] Add request/response logging middleware
+- [x] Add rate limiting on authentication endpoints (fixed window, 10 req/5 min)
+- [x] Add request/response logging middleware (Serilog request logging)
 - [ ] Add unit tests for services
 - [ ] Add integration tests for API endpoints
 - [ ] Add frontend unit tests (Jasmine/Karma)
-- [ ] Add health check endpoint (`/health`)
-- [ ] Add Docker support (Dockerfile + docker-compose)
-- [ ] Add CI/CD pipeline configuration (GitHub Actions)
+- [x] Add health check endpoint (`/health` with DB connectivity check)
+- [x] Add Docker support (Dockerfile + docker-compose with SQL Server)
+- [x] Add CI/CD pipeline configuration (GitHub Actions — backend, frontend, Docker builds)
 - [ ] Add data backup and restore endpoints
 - [ ] Move inline component styles to separate `.css` files
+
+### Phase 9 — Electron Desktop App
+> Priority: **Medium** — Deliver a native desktop experience for clinic staff
+
+- [x] Initialize Electron project wrapping the Angular frontend
+- [x] Configure Electron main process (BrowserWindow, app lifecycle, single instance lock)
+- [x] Add IPC bridge for native OS features (file dialogs, notifications, print)
+- [x] Add system tray icon with quick actions (open app, navigate to dashboard/appointments/patients)
+- [x] Add native desktop notifications for new appointments and reminders
+- [x] Add auto-updater support (electron-updater for seamless updates)
+- [x] Add offline detection with graceful fallback UI (offline banner component)
+- [ ] Add local data caching for offline access to recent patient data
+- [x] Configure Electron Builder for Windows installer (.exe / .msi)
+- [x] Configure Electron Builder for macOS package (.dmg)
+- [x] Configure Electron Builder for Linux package (.AppImage / .deb)
+- [ ] Add app signing configuration for Windows and macOS
+- [x] Add print support for invoices and reports via native print dialog
+- [x] Add keyboard shortcuts for common clinic workflows (Ctrl+Shift+D/A/P, Ctrl+P)
+- [x] Update CI/CD pipeline to build and publish desktop installers
 
 ---
 

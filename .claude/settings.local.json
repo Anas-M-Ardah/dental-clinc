@@ -15,7 +15,9 @@
       "Bash(tasklist)",
       "Bash(find /c/Anas-AlArdah/Side Projects/Dental Clinc Clean/dental-clinic-frontend -type f -name *invoice* -o -name *payment*)",
       "Bash(grep -E \"\\\\.\\(ts|html\\)$\")",
-      "Bash(find /c/Anas-AlArdah/Side Projects/Dental Clinc Clean/src -name *Migration* -o -name *Migrations*)"
+      "Bash(find /c/Anas-AlArdah/Side Projects/Dental Clinc Clean/src -name *Migration* -o -name *Migrations*)",
+      "Bash(npm install:*)",
+      "Bash(ls:*)"
     ]
   }
 }
