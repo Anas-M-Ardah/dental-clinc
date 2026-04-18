@@ -82,6 +82,15 @@ public class VerifyEmailDto
     public string Token { get; set; } = string.Empty;
 }
 
+public class ChangePasswordDto
+{
+    [Required]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required, MinLength(8)]
+    public string NewPassword { get; set; } = string.Empty;
+}
+
 public class BookAppointmentDto
 {
     [Required, Range(1, int.MaxValue)]

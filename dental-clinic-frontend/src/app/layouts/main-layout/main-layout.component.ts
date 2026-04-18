@@ -130,6 +130,28 @@ import { AdminAuthService } from '../../core/services/admin-auth.service';
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" routerLink="/reports" routerLinkActive="active" [attr.title]="sidebarCollapsed ? 'Reports' : null">
+                  <span class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
+                    </svg>
+                  </span>
+                  <span class="nav-text" *ngIf="!sidebarCollapsed">Reports</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" routerLink="/documents" routerLinkActive="active" [attr.title]="sidebarCollapsed ? 'Documents' : null">
+                  <span class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/>
+                    </svg>
+                  </span>
+                  <span class="nav-text" *ngIf="!sidebarCollapsed">Documents</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" routerLink="/treatment-records" routerLinkActive="active" [attr.title]="sidebarCollapsed ? ('nav.treatmentRecords' | translate) : null">
                   <span class="nav-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

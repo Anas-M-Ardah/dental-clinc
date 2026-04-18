@@ -125,6 +125,20 @@ import { Patient } from '../../../core/models/patient.model';
     .toggle-switch input:checked + .toggle-slider::before {
       transform: translateX(20px);
     }
+
+    .password-section { margin-top: 32px; }
+    .btn-password {
+      padding: 11px 28px;
+      background: var(--gray-100); color: var(--gray-700);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all var(--transition-fast);
+      font-family: inherit;
+    }
+    .btn-password:hover { background: var(--gray-200); }
+    .password-form { margin-top: 14px; max-width: 360px; }
+    .password-form .form-group { margin-bottom: 14px; }
   `],
   template: `
     <h1 class="page-title">My Profile</h1>
@@ -196,6 +210,35 @@ import { Patient } from '../../../core/models/patient.model';
           <span class="toggle-slider"></span>
         </label>
       </div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title">Change Password</h3>
+      <div *ngIf="!showPasswordForm">
+        <button class="btn-password" (click)="showPasswordForm = true">Change Password</button>
+      </div>
+      <div class="password-form" *ngIf="showPasswordForm">
+        <div class="form-group">
+          <label class="form-label">Current Password</label>
+          <input type="password" class="form-control" [(ngModel)]="passwordDto.currentPassword" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">New Password (min 8 characters)</label>
+          <input type="password" class="form-control" [(ngModel)]="passwordDto.newPassword" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm New Password</label>
+          <input type="password" class="form-control" [(ngModel)]="confirmPassword" />
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button class="btn-save" [disabled]="changingPassword || !canChangePassword()" (click)="changePassword()">
+            {{ changingPassword ? 'Saving...' : 'Update Password' }}
+          </button>
+          <button class="btn-password" (click)="cancelPasswordChange()">Cancel</button>
+        </div>
+        <div class="success-msg" *ngIf="passwordSuccess">{{ passwordSuccess }}</div>
+        <div class="error-msg" *ngIf="passwordError">{{ passwordError }}</div>
+      </div>
     </div>
   `
 })
@@ -205,6 +248,13 @@ export class PortalProfileComponent implements OnInit {
   saving = false;
   successMsg = '';
   errorMsg = '';
+
+  showPasswordForm = false;
+  changingPassword = false;
+  passwordDto = { currentPassword: '', newPassword: '' };
+  confirmPassword = '';
+  passwordSuccess = '';
+  passwordError = '';
 
   constructor(private portalApi: PortalApiService) {}
 
@@ -263,5 +313,40 @@ export class PortalProfileComponent implements OnInit {
       next: p => this.patient = p,
       error: () => {}
     });
+  }
+
+  canChangePassword(): boolean {
+    return this.passwordDto.currentPassword.length > 0
+      && this.passwordDto.newPassword.length >= 8
+      && this.passwordDto.newPassword === this.confirmPassword;
+  }
+
+  changePassword(): void {
+    if (!this.canChangePassword()) return;
+    this.changingPassword = true;
+    this.passwordSuccess = '';
+    this.passwordError = '';
+
+    this.portalApi.changePassword(this.passwordDto).subscribe({
+      next: () => {
+        this.changingPassword = false;
+        this.passwordSuccess = 'Password changed successfully.';
+        this.passwordDto = { currentPassword: '', newPassword: '' };
+        this.confirmPassword = '';
+        setTimeout(() => { this.showPasswordForm = false; this.passwordSuccess = ''; }, 3000);
+      },
+      error: (err: any) => {
+        this.changingPassword = false;
+        this.passwordError = err.error?.message || err.error || 'Failed to change password.';
+      }
+    });
+  }
+
+  cancelPasswordChange(): void {
+    this.showPasswordForm = false;
+    this.passwordDto = { currentPassword: '', newPassword: '' };
+    this.confirmPassword = '';
+    this.passwordSuccess = '';
+    this.passwordError = '';
   }
 }
