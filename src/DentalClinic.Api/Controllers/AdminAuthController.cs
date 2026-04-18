@@ -1,11 +1,13 @@
 using DentalClinic.Application.DTOs;
 using DentalClinic.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace DentalClinic.Api.Controllers;
 
 [ApiController]
 [Route("api/admin-auth")]
+[EnableRateLimiting("AuthRateLimit")]
 public class AdminAuthController : ControllerBase
 {
     private readonly IAdminAuthService _authService;

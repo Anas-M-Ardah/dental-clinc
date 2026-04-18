@@ -29,6 +29,7 @@ public class DentalClinicDbContext : DbContext
     public DbSet<PatientCondition> PatientConditions => Set<PatientCondition>();
     public DbSet<FamilyMedicalHistory> FamilyMedicalHistories => Set<FamilyMedicalHistory>();
     public DbSet<PatientSurvey> PatientSurveys => Set<PatientSurvey>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -340,6 +341,21 @@ public class DentalClinicDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
             entity.HasIndex(e => e.PatientId);
             entity.HasIndex(e => e.AppointmentId).IsUnique();
+        });
+
+        modelBuilder.Entity<AuditLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Action).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.EntityType).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.EntityId).HasMaxLength(50);
+            entity.Property(e => e.UserId).HasMaxLength(50);
+            entity.Property(e => e.UserRole).HasMaxLength(20);
+            entity.Property(e => e.Details).HasMaxLength(2000);
+            entity.Property(e => e.IpAddress).HasMaxLength(45);
+            entity.HasIndex(e => e.Timestamp);
+            entity.HasIndex(e => new { e.EntityType, e.EntityId });
+            entity.HasIndex(e => e.UserId);
         });
     }
 }

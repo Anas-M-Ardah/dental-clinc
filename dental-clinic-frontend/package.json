@@ -1,12 +1,21 @@
 {
   "name": "dental-clinic-frontend",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Dental Clinic Management System - Desktop App",
+  "author": "Dental Clinic Team",
+  "main": "electron/main.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "electron:dev": "ng build --configuration development && electron .",
+    "electron:serve": "concurrently \"ng serve\" \"wait-on http://localhost:4200 && electron .\"",
+    "electron:build": "ng build --configuration production && electron-builder build",
+    "electron:build:win": "ng build --configuration production && electron-builder build --win",
+    "electron:build:mac": "ng build --configuration production && electron-builder build --mac",
+    "electron:build:linux": "ng build --configuration production && electron-builder build --linux"
   },
   "private": true,
   "dependencies": {
@@ -21,6 +30,7 @@
     "@coreui/icons": "^3.0.1",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.8",
+    "electron-updater": "^6.8.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
@@ -30,12 +40,86 @@
     "@angular/cli": "^19.2.21",
     "@angular/compiler-cli": "^19.2.0",
     "@types/jasmine": "~5.1.0",
+    "concurrently": "^9.2.1",
+    "electron": "^41.2.1",
+    "electron-builder": "^26.8.1",
+    "electron-reload": "^2.0.0-alpha.1",
     "jasmine-core": "~5.6.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.7.2"
+    "typescript": "~5.7.2",
+    "wait-on": "^8.0.5"
+  },
+  "build": {
+    "appId": "com.dentalclinic.app",
+    "productName": "Dental Clinic",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/dental-clinic-frontend/browser/**/*",
+      "electron/**/*",
+      "!electron/assets/*.svg"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "electron/assets/icon.png",
+      "uninstallerIcon": "electron/assets/icon.png"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "electron/assets/icon.png",
+      "category": "public.app-category.medical"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "electron/assets/icon.png",
+      "category": "Office"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Anas-M-Ardah",
+      "repo": "Dental-Clinc-Clean"
+    }
   }
 }

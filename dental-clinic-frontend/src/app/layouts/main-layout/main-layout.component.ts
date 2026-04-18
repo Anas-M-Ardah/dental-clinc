@@ -4,12 +4,16 @@ import { RouterModule } from '@angular/router';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { AdminAuthService } from '../../core/services/admin-auth.service';
+import { OfflineBannerComponent } from '../../shared/offline-banner.component';
+import { UpdateBannerComponent } from '../../shared/update-banner.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslatePipe],
+  imports: [CommonModule, RouterModule, TranslatePipe, OfflineBannerComponent, UpdateBannerComponent],
   template: `
+    <app-offline-banner></app-offline-banner>
+    <app-update-banner></app-update-banner>
     <div class="app-wrapper" [class.rtl]="currentLang === 'ar'" [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
       <!-- Sidebar -->
       <aside class="sidebar" [class.collapsed]="sidebarCollapsed" [class.sidebar-end]="currentLang === 'ar'">
