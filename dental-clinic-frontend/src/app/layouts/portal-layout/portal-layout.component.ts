@@ -174,6 +174,19 @@ import { NotificationDto } from '../../core/models/notification.model';
     }
     .patient-badge svg { opacity: 0.6; }
 
+    .theme-btn {
+      width: 40px; height: 40px; display: flex;
+      align-items: center; justify-content: center;
+      background: var(--gray-50); border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); cursor: pointer;
+      transition: all var(--transition-fast); color: var(--gray-600);
+    }
+    .theme-btn:hover {
+      background: var(--primary-light); border-color: var(--primary-200);
+      color: var(--primary);
+    }
+    .theme-btn svg { width: 18px; height: 18px; }
+
     /* Notification Bell */
     .notification-wrapper { position: relative; }
     .notification-btn {
@@ -323,6 +336,38 @@ import { NotificationDto } from '../../core/models/notification.model';
                 </a>
               </li>
               <li class="nav-item">
+                <a class="portal-nav-link" routerLink="/portal/documents" routerLinkActive="active" [attr.title]="sidebarCollapsed ? 'Documents' : null">
+                  <span class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                      <path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/>
+                    </svg>
+                  </span>
+                  <span class="nav-text" *ngIf="!sidebarCollapsed">Documents</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="portal-nav-link" routerLink="/portal/medical-history" routerLinkActive="active" [attr.title]="sidebarCollapsed ? 'Medical History' : null">
+                  <span class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                  </span>
+                  <span class="nav-text" *ngIf="!sidebarCollapsed">Medical History</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="portal-nav-link" routerLink="/portal/treatment-plan" routerLinkActive="active" [attr.title]="sidebarCollapsed ? 'Treatment Plan' : null">
+                  <span class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+                    </svg>
+                  </span>
+                  <span class="nav-text" *ngIf="!sidebarCollapsed">Treatment Plan</span>
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="portal-nav-link" routerLink="/portal/treatment-history" routerLinkActive="active" [attr.title]="sidebarCollapsed ? 'Treatment History' : null">
                   <span class="nav-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -332,6 +377,22 @@ import { NotificationDto } from '../../core/models/notification.model';
                     </svg>
                   </span>
                   <span class="nav-text" *ngIf="!sidebarCollapsed">Treatment History</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="nav-section">
+            <div class="nav-section-title" *ngIf="!sidebarCollapsed">FEEDBACK</div>
+            <ul>
+              <li class="nav-item">
+                <a class="portal-nav-link" routerLink="/portal/surveys" routerLinkActive="active" [attr.title]="sidebarCollapsed ? 'Surveys' : null">
+                  <span class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                  </span>
+                  <span class="nav-text" *ngIf="!sidebarCollapsed">Surveys</span>
                 </a>
               </li>
             </ul>
@@ -389,6 +450,18 @@ import { NotificationDto } from '../../core/models/notification.model';
             <h5 class="header-title">Patient Portal</h5>
           </div>
           <div class="header-right">
+            <button class="theme-btn" (click)="toggleDarkMode()" [attr.title]="darkMode ? 'Light Mode' : 'Dark Mode'">
+              <svg *ngIf="!darkMode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+              <svg *ngIf="darkMode" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            </button>
             <div class="notification-wrapper">
               <button class="notification-btn" (click)="toggleNotifications($event)" aria-label="Notifications">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -435,17 +508,34 @@ export class PortalLayoutComponent implements OnInit {
   showNotifications = false;
   unreadCount = 0;
   notifications: NotificationDto[] = [];
+  darkMode = false;
 
   constructor(
     private authService: PortalAuthService,
     private notificationService: NotificationService
   ) {
     this.patientName = this.authService.getFullName();
+    this.darkMode = localStorage.getItem('portal-dark-mode') === 'true';
+    this.applyDarkMode();
   }
 
   ngOnInit(): void {
     this.notificationService.unreadCount.subscribe(count => this.unreadCount = count);
     this.notificationService.startPolling(60000);
+  }
+
+  toggleDarkMode(): void {
+    this.darkMode = !this.darkMode;
+    localStorage.setItem('portal-dark-mode', String(this.darkMode));
+    this.applyDarkMode();
+  }
+
+  private applyDarkMode(): void {
+    if (this.darkMode) {
+      document.documentElement.classList.add('dark-mode');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+    }
   }
 
   toggleSidebar(): void {

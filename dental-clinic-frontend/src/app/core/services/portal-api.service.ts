@@ -61,4 +61,32 @@ export class PortalApiService {
   updateNotificationPreferences(dto: { emailNotificationsEnabled: boolean; smsNotificationsEnabled: boolean }): Observable<Patient> {
     return this.http.put<Patient>(`${this.baseUrl}/notification-preferences`, dto);
   }
+
+  getMyDocuments(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/documents`);
+  }
+
+  getDocumentDownloadUrl(id: number): string {
+    return `${this.baseUrl}/documents/${id}/download`;
+  }
+
+  getMyMedicalHistory(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/medical-history`);
+  }
+
+  changePassword(dto: { currentPassword: string; newPassword: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/change-password`, dto);
+  }
+
+  getMySurveys(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/surveys`);
+  }
+
+  getPendingSurveyAppointments(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/surveys/pending`);
+  }
+
+  submitSurvey(dto: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/surveys`, dto);
+  }
 }

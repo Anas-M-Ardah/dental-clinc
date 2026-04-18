@@ -21,9 +21,9 @@ dental-clinic-frontend/        # Angular 19 SPA
   app/layouts/                 # MainLayout (admin), PortalLayout (patient)
 ```
 
-**Entities**: Patient, Doctor, Appointment, Treatment, Invoice, InvoiceItem, TreatmentRecord
-**Enums**: AppointmentStatus (6), InvoiceStatus (4), Gender (2)
-**Controllers**: 9 (Patients, Doctors, Appointments, Treatments, Invoices, TreatmentRecords, Dashboard, PatientAuth, PatientPortal)
+**Entities**: Patient, Doctor, Appointment, Treatment, Invoice, InvoiceItem, TreatmentRecord, Document, PatientAllergy, PatientMedication, PatientCondition, FamilyMedicalHistory, PatientSurvey
+**Enums**: AppointmentStatus (6), InvoiceStatus (4), Gender (2), DocumentType (6)
+**Controllers**: 12 (Patients, Doctors, Appointments, Treatments, Invoices, TreatmentRecords, Dashboard, PatientAuth, PatientPortal, Reports, Documents, MedicalHistory)
 
 ---
 
@@ -125,38 +125,38 @@ dental-clinic-frontend/        # Angular 19 SPA
 ### Phase 5 — Reporting & Analytics
 > Priority: **Medium** — Business intelligence
 
-- [ ] Revenue reports (by date range, doctor, treatment type)
-- [ ] Patient statistics (demographics, new vs returning, gender distribution)
-- [ ] Appointment analytics (completion rate, no-show rate, cancellation trends)
-- [ ] Doctor performance metrics (appointments completed, revenue generated)
-- [ ] Treatment popularity analysis
-- [ ] Monthly/quarterly summary reports
-- [ ] Export reports to CSV
+- [x] Revenue reports (by date range, doctor, treatment type)
+- [x] Patient statistics (demographics, new vs returning, gender distribution)
+- [x] Appointment analytics (completion rate, no-show rate, cancellation trends)
+- [x] Doctor performance metrics (appointments completed, revenue generated)
+- [x] Treatment popularity analysis
+- [x] Monthly/quarterly summary reports
+- [x] Export reports to CSV
+- [x] Admin dashboard charts (line chart for revenue trend, bar chart for appointments)
 - [ ] Export reports to PDF
-- [ ] Admin dashboard charts (line chart for revenue trend, bar chart for appointments)
 
 ### Phase 6 — Document Management
 > Priority: **Medium** — Clinical workflow
 
-- [ ] File upload infrastructure (Azure Blob Storage or local storage)
-- [ ] X-ray image upload linked to treatment records
-- [ ] Prescription document upload/generation
-- [ ] Before/after treatment photos
-- [ ] Document viewer in patient portal (patients can view their own files)
-- [ ] File type validation and size limits
-- [ ] Document versioning and archival
+- [x] File upload infrastructure (Azure Blob Storage or local storage)
+- [x] X-ray image upload linked to treatment records
+- [x] Prescription document upload/generation
+- [x] Before/after treatment photos
+- [x] Document viewer in patient portal (patients can view their own files)
+- [x] File type validation and size limits
+- [x] Document versioning and archival
 
 ### Phase 7 — Patient Experience Enhancements
 > Priority: **Low** — Nice-to-have improvements
 
-- [ ] Structured medical history (allergies, medications, conditions as separate fields/tables)
-- [ ] Family medical history tracking
-- [ ] Patient satisfaction surveys (post-appointment feedback)
+- [x] Structured medical history (allergies, medications, conditions as separate fields/tables)
+- [x] Family medical history tracking
+- [x] Patient satisfaction surveys (post-appointment feedback)
 - [ ] Patient follow-up tracking and reminders
-- [ ] Treatment plan viewer in portal (see upcoming treatment stages)
-- [ ] Appointment history with doctor notes (patient-visible portion)
-- [ ] Portal: change password functionality
-- [ ] Portal: dark mode toggle
+- [x] Treatment plan viewer in portal (see upcoming treatment stages)
+- [x] Appointment history with doctor notes (patient-visible portion)
+- [x] Portal: change password functionality
+- [x] Portal: dark mode toggle
 - [ ] Portal: mobile-responsive improvements
 
 ### Phase 8 — Infrastructure & Code Quality
@@ -191,7 +191,11 @@ dental-clinic-frontend/        # Angular 19 SPA
 | Dashboard | `GET /api/dashboard/stats\|today-schedule\|recent-patients` | — |
 | Auth | — | `POST /api/patient-auth/register\|login` |
 | Profile | — | `GET/PUT /api/portal/profile` |
+| Documents | `GET/POST/PATCH/DELETE /api/documents` | `GET /api/portal/documents` |
+| Medical History | `GET/POST/DELETE /api/patients/{id}/medical-history/*` | `GET /api/portal/medical-history` |
+| Surveys | — | `GET/POST /api/portal/surveys` |
+| Reports | `GET /api/reports/*` | — |
 
 ---
 
-*Last updated: 2026-03-28*
+*Last updated: 2026-04-18*

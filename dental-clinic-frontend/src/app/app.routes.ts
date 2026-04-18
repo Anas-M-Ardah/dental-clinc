@@ -11,6 +11,8 @@ import { TreatmentsComponent } from './features/treatments/treatments.component'
 import { BillingComponent } from './features/billing/billing.component';
 import { CouponsComponent } from './features/coupons/coupons.component';
 import { TreatmentRecordsComponent } from './features/treatment-records/treatment-records.component';
+import { ReportsComponent } from './features/reports/reports.component';
+import { DocumentsComponent } from './features/documents/documents.component';
 import { portalAuthGuard } from './core/guards/portal-auth.guard';
 import { adminAuthGuard } from './core/guards/admin-auth.guard';
 
@@ -37,6 +39,8 @@ export const routes: Routes = [
       { path: 'treatments', component: TreatmentsComponent },
       { path: 'invoices', component: BillingComponent },
       { path: 'coupons', component: CouponsComponent },
+      { path: 'reports', component: ReportsComponent },
+      { path: 'documents', component: DocumentsComponent },
       { path: 'treatment-records', component: TreatmentRecordsComponent }
     ]
   },
@@ -75,6 +79,22 @@ export const routes: Routes = [
       {
         path: 'treatment-history',
         loadComponent: () => import('./features/portal/treatment-history/portal-treatment-history.component').then(m => m.PortalTreatmentHistoryComponent)
+      },
+      {
+        path: 'documents',
+        loadComponent: () => import('./features/portal/documents/portal-documents.component').then(m => m.PortalDocumentsComponent)
+      },
+      {
+        path: 'medical-history',
+        loadComponent: () => import('./features/portal/medical-history/portal-medical-history.component').then(m => m.PortalMedicalHistoryComponent)
+      },
+      {
+        path: 'treatment-plan',
+        loadComponent: () => import('./features/portal/treatment-plan/portal-treatment-plan.component').then(m => m.PortalTreatmentPlanComponent)
+      },
+      {
+        path: 'surveys',
+        loadComponent: () => import('./features/portal/surveys/portal-surveys.component').then(m => m.PortalSurveysComponent)
       },
       {
         path: 'profile',

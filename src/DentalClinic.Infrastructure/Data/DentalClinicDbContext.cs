@@ -23,6 +23,12 @@ public class DentalClinicDbContext : DbContext
     public DbSet<WaitingListEntry> WaitingListEntries => Set<WaitingListEntry>();
     public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
     public DbSet<Coupon> Coupons => Set<Coupon>();
+    public DbSet<Document> Documents => Set<Document>();
+    public DbSet<PatientAllergy> PatientAllergies => Set<PatientAllergy>();
+    public DbSet<PatientMedication> PatientMedications => Set<PatientMedication>();
+    public DbSet<PatientCondition> PatientConditions => Set<PatientCondition>();
+    public DbSet<FamilyMedicalHistory> FamilyMedicalHistories => Set<FamilyMedicalHistory>();
+    public DbSet<PatientSurvey> PatientSurveys => Set<PatientSurvey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -246,6 +252,94 @@ public class DentalClinicDbContext : DbContext
             entity.Property(e => e.MaxDiscountAmount).HasPrecision(18, 2);
             entity.Property(e => e.MinInvoiceAmount).HasPrecision(18, 2);
             entity.HasIndex(e => e.Code).IsUnique();
+        });
+
+        modelBuilder.Entity<Document>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FileName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.StoredFileName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.ContentType).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.UploadedBy).HasMaxLength(100);
+            entity.HasOne(e => e.Patient)
+                .WithMany()
+                .HasForeignKey(e => e.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.TreatmentRecord)
+                .WithMany()
+                .HasForeignKey(e => e.TreatmentRecordId)
+                .OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(e => e.PatientId);
+            entity.HasIndex(e => e.TreatmentRecordId);
+        });
+
+        modelBuilder.Entity<PatientAllergy>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.AllergyName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Severity).HasMaxLength(20);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.HasOne(e => e.Patient)
+                .WithMany(p => p.Allergies)
+                .HasForeignKey(e => e.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.PatientId);
+        });
+
+        modelBuilder.Entity<PatientMedication>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.MedicationName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Dosage).HasMaxLength(100);
+            entity.Property(e => e.Frequency).HasMaxLength(100);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.HasOne(e => e.Patient)
+                .WithMany(p => p.Medications)
+                .HasForeignKey(e => e.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.PatientId);
+        });
+
+        modelBuilder.Entity<PatientCondition>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ConditionName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.HasOne(e => e.Patient)
+                .WithMany(p => p.Conditions)
+                .HasForeignKey(e => e.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.PatientId);
+        });
+
+        modelBuilder.Entity<FamilyMedicalHistory>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Relationship).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.ConditionName).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Notes).HasMaxLength(500);
+            entity.HasOne(e => e.Patient)
+                .WithMany(p => p.FamilyHistory)
+                .HasForeignKey(e => e.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.PatientId);
+        });
+
+        modelBuilder.Entity<PatientSurvey>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Comments).HasMaxLength(1000);
+            entity.HasOne(e => e.Patient)
+                .WithMany()
+                .HasForeignKey(e => e.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.Appointment)
+                .WithMany()
+                .HasForeignKey(e => e.AppointmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(e => e.PatientId);
+            entity.HasIndex(e => e.AppointmentId).IsUnique();
         });
     }
 }

@@ -250,4 +250,116 @@ export class ApiService {
   deleteTreatmentRecord(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/treatment-records/${id}`);
   }
+
+  // Reports
+  getRevenueReport(startDate?: string, endDate?: string): Observable<any> {
+    let params = new HttpParams();
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    return this.http.get<any>(`${this.baseUrl}/reports/revenue`, { params });
+  }
+
+  getPatientStats(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/reports/patients`);
+  }
+
+  getAppointmentAnalytics(startDate?: string, endDate?: string): Observable<any> {
+    let params = new HttpParams();
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    return this.http.get<any>(`${this.baseUrl}/reports/appointments`, { params });
+  }
+
+  getDoctorPerformance(startDate?: string, endDate?: string): Observable<any> {
+    let params = new HttpParams();
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    return this.http.get<any>(`${this.baseUrl}/reports/doctors`, { params });
+  }
+
+  getTreatmentPopularity(startDate?: string, endDate?: string): Observable<any> {
+    let params = new HttpParams();
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+    return this.http.get<any>(`${this.baseUrl}/reports/treatments`, { params });
+  }
+
+  getMonthlySummary(months = 12): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/reports/monthly-summary?months=${months}`);
+  }
+
+  exportCsv(reportType: string, startDate?: string, endDate?: string): void {
+    let url = `${this.baseUrl}/reports/${reportType}/csv`;
+    const params: string[] = [];
+    if (startDate) params.push(`startDate=${startDate}`);
+    if (endDate) params.push(`endDate=${endDate}`);
+    if (params.length) url += '?' + params.join('&');
+    window.open(url, '_blank');
+  }
+
+  // Documents
+  getDocumentsByPatient(patientId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/documents/patient/${patientId}`);
+  }
+
+  getDocumentsByTreatmentRecord(treatmentRecordId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/documents/treatment-record/${treatmentRecordId}`);
+  }
+
+  getDocument(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/documents/${id}`);
+  }
+
+  uploadDocument(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/documents/upload`, formData);
+  }
+
+  archiveDocument(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/documents/${id}/archive`, {});
+  }
+
+  deleteDocument(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/documents/${id}`);
+  }
+
+  getDocumentDownloadUrl(id: number): string {
+    return `${this.baseUrl}/documents/${id}/download`;
+  }
+
+  // Medical History
+  getMedicalHistory(patientId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/patients/${patientId}/medical-history`);
+  }
+
+  addAllergy(patientId: number, dto: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/medical-history/allergies`, dto);
+  }
+
+  deleteAllergy(patientId: number, id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/patients/${patientId}/medical-history/allergies/${id}`);
+  }
+
+  addMedication(patientId: number, dto: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/medical-history/medications`, dto);
+  }
+
+  deleteMedication(patientId: number, id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/patients/${patientId}/medical-history/medications/${id}`);
+  }
+
+  addCondition(patientId: number, dto: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/medical-history/conditions`, dto);
+  }
+
+  deleteCondition(patientId: number, id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/patients/${patientId}/medical-history/conditions/${id}`);
+  }
+
+  addFamilyHistory(patientId: number, dto: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/patients/${patientId}/medical-history/family-history`, dto);
+  }
+
+  deleteFamilyHistory(patientId: number, id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/patients/${patientId}/medical-history/family-history/${id}`);
+  }
 }

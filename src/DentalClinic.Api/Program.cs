@@ -47,6 +47,15 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 builder.Services.AddScoped<ICouponService, CouponService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IDocumentService>(provider =>
+{
+    var repo = provider.GetRequiredService<IDocumentRepository>();
+    var env = provider.GetRequiredService<IWebHostEnvironment>();
+    var storagePath = Path.Combine(env.ContentRootPath, "uploads", "documents");
+    return new DocumentService(repo, storagePath);
+});
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

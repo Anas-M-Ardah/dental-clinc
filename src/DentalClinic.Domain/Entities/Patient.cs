@@ -39,4 +39,8 @@ public class Patient
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
     public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+    public virtual ICollection<PatientAllergy> Allergies { get; set; } = new List<PatientAllergy>();
+    public virtual ICollection<PatientMedication> Medications { get; set; } = new List<PatientMedication>();
+    public virtual ICollection<PatientCondition> Conditions { get; set; } = new List<PatientCondition>();
+    public virtual ICollection<FamilyMedicalHistory> FamilyHistory { get; set; } = new List<FamilyMedicalHistory>();
 }
