@@ -195,26 +195,47 @@ dental-clinic-frontend/        # Angular 19 SPA
 - [x] Add keyboard shortcuts for common clinic workflows (Ctrl+Shift+D/A/P, Ctrl+P)
 - [x] Update CI/CD pipeline to build and publish desktop installers
 
+### Phase 10 — Doctor Portal
+> Priority: **High** — Core missing role in the system
+
+- [ ] Add Doctor authentication (login endpoint, JWT with "doctor" role)
+- [ ] Seed a test doctor account: **Dr. Anas Alardah** (email: `anas@clinic.com`, password: `Doctor@123`)
+- [ ] Add DoctorPortalController (`/api/doctor-portal/*`) with doctor-only authorization
+- [ ] Doctor dashboard — today's schedule, upcoming appointments count, patients seen today
+- [ ] View my appointments (today, upcoming, past) with patient details
+- [ ] Confirm appointment (mark as Confirmed when patient arrives)
+- [ ] Complete appointment (mark as Completed with optional notes)
+- [ ] Mark appointment as No-Show
+- [ ] Add treatment record for a patient (clinical notes, diagnosis, procedures performed)
+- [ ] Upload documents for a patient (X-rays, prescriptions, photos) from doctor view
+- [ ] View patient profile and full medical history before appointment
+- [ ] Add/edit patient allergies, medications, conditions from doctor view
+- [ ] Manage my working hours and day-offs
+- [ ] View my performance stats (appointments completed, revenue generated, ratings)
+- [ ] Doctor portal frontend layout (sidebar navigation matching admin/patient portal design)
+- [ ] Doctor auth guard and interceptor (`/api/doctor-portal/*` Bearer token)
+- [ ] Add "DoctorOnly" authorization policy
+
 ---
 
 ## Quick Reference
 
-| Area | Admin Endpoint | Portal Endpoint |
-|------|---------------|-----------------|
-| Patients | `GET/POST/PUT/DELETE /api/patients` | — |
-| Doctors | `GET /api/doctors` | — |
-| Appointments | `GET/POST/PUT/DELETE /api/appointments` | `GET/POST/DELETE /api/portal/appointments` |
-| Treatments | `GET/POST/PUT/DELETE /api/treatments` | — |
-| Invoices | `GET/POST/PATCH /api/invoices` | `GET /api/portal/invoices` |
-| Treatment Records | `GET/POST/PUT/DELETE /api/treatment-records` | `GET /api/portal/treatment-history` |
-| Dashboard | `GET /api/dashboard/stats\|today-schedule\|recent-patients` | — |
-| Auth | — | `POST /api/patient-auth/register\|login` |
-| Profile | — | `GET/PUT /api/portal/profile` |
-| Documents | `GET/POST/PATCH/DELETE /api/documents` | `GET /api/portal/documents` |
-| Medical History | `GET/POST/DELETE /api/patients/{id}/medical-history/*` | `GET /api/portal/medical-history` |
-| Surveys | — | `GET/POST /api/portal/surveys` |
-| Reports | `GET /api/reports/*` | — |
+| Area | Admin Endpoint | Portal Endpoint | Doctor Endpoint |
+|------|---------------|-----------------|-----------------|
+| Patients | `GET/POST/PUT/DELETE /api/patients` | — | `GET /api/doctor-portal/patients/{id}` |
+| Doctors | `GET /api/doctors` | — | — |
+| Appointments | `GET/POST/PUT/DELETE /api/appointments` | `GET/POST/DELETE /api/portal/appointments` | `GET/PATCH /api/doctor-portal/appointments` |
+| Treatments | `GET/POST/PUT/DELETE /api/treatments` | — | — |
+| Invoices | `GET/POST/PATCH /api/invoices` | `GET /api/portal/invoices` | — |
+| Treatment Records | `GET/POST/PUT/DELETE /api/treatment-records` | `GET /api/portal/treatment-history` | `GET/POST /api/doctor-portal/treatment-records` |
+| Dashboard | `GET /api/dashboard/stats\|today-schedule\|recent-patients` | — | `GET /api/doctor-portal/dashboard` |
+| Auth | `POST /api/admin-auth/login` | `POST /api/patient-auth/register\|login` | `POST /api/doctor-auth/login` |
+| Profile | — | `GET/PUT /api/portal/profile` | `GET/PUT /api/doctor-portal/profile` |
+| Documents | `GET/POST/PATCH/DELETE /api/documents` | `GET /api/portal/documents` | `GET/POST /api/doctor-portal/documents` |
+| Medical History | `GET/POST/DELETE /api/patients/{id}/medical-history/*` | `GET /api/portal/medical-history` | `GET/POST/DELETE /api/doctor-portal/medical-history/{patientId}` |
+| Surveys | — | `GET/POST /api/portal/surveys` | — |
+| Reports | `GET /api/reports/*` | — | `GET /api/doctor-portal/stats` |
 
 ---
 
-*Last updated: 2026-04-18*
+*Last updated: 2026-04-23*

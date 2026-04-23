@@ -1,7 +1,6 @@
 const { app, BrowserWindow, Tray, Menu, ipcMain, dialog, Notification, globalShortcut, nativeImage, shell } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
-const url = require('url');
 
 let mainWindow = null;
 let tray = null;
@@ -34,12 +33,8 @@ function createWindow() {
       });
     } catch (_) {}
   } else {
-    mainWindow.loadURL(
-      url.format({
-        pathname: path.join(__dirname, '..', 'dist', 'dental-clinic-frontend', 'browser', 'index.html'),
-        protocol: 'file:',
-        slashes: true,
-      })
+    mainWindow.loadFile(
+      path.join(__dirname, '..', 'dist', 'dental-clinic-frontend', 'browser', 'index.html')
     );
   }
 
