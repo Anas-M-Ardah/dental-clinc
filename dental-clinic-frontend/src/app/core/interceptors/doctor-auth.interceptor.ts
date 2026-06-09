@@ -1,18 +1,12 @@
 import { inject } from '@angular/core';
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { catchError, switchMap, throwError } from 'rxjs';
-import { AdminAuthService } from '../services/admin-auth.service';
+import { DoctorAuthService } from '../services/doctor-auth.service';
 
-export const adminAuthInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AdminAuthService);
+export const doctorAuthInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(DoctorAuthService);
 
-  // Only attach admin token to /api/ requests, excluding portal/auth endpoints
-  if (!req.url.includes('/api/')
-      || req.url.includes('/api/portal')
-      || req.url.includes('/api/patient-auth')
-      || req.url.includes('/api/admin-auth')
-      || req.url.includes('/api/doctor-portal')
-      || req.url.includes('/api/doctor-auth')) {
+  if (!req.url.includes('/api/doctor-portal')) {
     return next(req);
   }
 

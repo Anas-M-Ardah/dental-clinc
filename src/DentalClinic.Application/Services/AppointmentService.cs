@@ -291,6 +291,26 @@ public class AppointmentService : IAppointmentService
         return MapToDto(updated);
     }
 
+    public async Task<AppointmentDto> UpdateStatusAsync(int id, AppointmentStatus newStatus, string? appendNotes = null)
+    {
+        var appointment = await _appointmentRepository.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException("Appointment not found");
+
+        appointment.Status = newStatus;
+        appointment.UpdatedAt = DateTime.UtcNow;
+
+        if (!string.IsNullOrWhiteSpace(appendNotes))
+        {
+            var stamp = $"[{newStatus} {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC]";
+            appointment.Notes = string.IsNullOrWhiteSpace(appointment.Notes)
+                ? $"{stamp} {appendNotes}"
+                : $"{appointment.Notes}\n{stamp} {appendNotes}";
+        }
+
+        var updated = await _appointmentRepository.UpdateAsync(appointment);
+        return MapToDto(updated);
+    }
+
     public async Task DeleteAsync(int id)
     {
         await _appointmentRepository.DeleteAsync(id);

@@ -57,6 +57,8 @@ builder.Services.AddScoped<ITreatmentRecordService, TreatmentRecordService>();
 builder.Services.AddScoped<IPatientAuthService, PatientAuthService>();
 builder.Services.AddScoped<IAdminUserRepository, AdminUserRepository>();
 builder.Services.AddScoped<IAdminAuthService, AdminAuthService>();
+builder.Services.AddScoped<IDoctorAuthRepository, DoctorAuthRepository>();
+builder.Services.AddScoped<IDoctorAuthService, DoctorAuthService>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
@@ -100,6 +102,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy =>
         policy.RequireAuthenticatedUser()
               .RequireRole("admin"));
+    options.AddPolicy("DoctorOnly", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireRole("doctor"));
 });
 
 builder.Services.AddRateLimiter(options =>
@@ -148,6 +153,33 @@ using (var scope = app.Services.CreateScope())
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         });
+        context.SaveChanges();
+    }
+
+    // Seed test doctor account (Phase 10 - Doctor Portal): Dr. Anas Alardah
+    const string testDoctorEmail = "anas@clinic.com";
+    var existingTestDoctor = context.Doctors.FirstOrDefault(d => d.Email == testDoctorEmail);
+    if (existingTestDoctor == null)
+    {
+        context.Doctors.Add(new Doctor
+        {
+            FirstName = "Anas",
+            LastName = "Alardah",
+            Specialization = "General Dentistry",
+            Phone = "+962790000005",
+            Email = testDoctorEmail,
+            Bio = "Lead dentist and clinic founder.",
+            IsAvailable = true,
+            IsActive = true,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Doctor@123"),
+            CreatedAt = DateTime.UtcNow
+        });
+        context.SaveChanges();
+    }
+    else if (string.IsNullOrEmpty(existingTestDoctor.PasswordHash))
+    {
+        existingTestDoctor.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Doctor@123");
+        existingTestDoctor.IsActive = true;
         context.SaveChanges();
     }
 

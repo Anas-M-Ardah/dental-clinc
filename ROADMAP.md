@@ -23,7 +23,7 @@ dental-clinic-frontend/        # Angular 19 SPA
 
 **Entities**: Patient, Doctor, Appointment, Treatment, Invoice, InvoiceItem, TreatmentRecord, Document, PatientAllergy, PatientMedication, PatientCondition, FamilyMedicalHistory, PatientSurvey, AuditLog
 **Enums**: AppointmentStatus (6), InvoiceStatus (4), Gender (2), DocumentType (6), AdminRole
-**Controllers**: 14 (Patients, Doctors, Appointments, Treatments, Invoices, TreatmentRecords, Dashboard, PatientAuth, AdminAuth, PatientPortal, Reports, Documents, MedicalHistory, AdminUsers)
+**Controllers**: 16 (Patients, Doctors, Appointments, Treatments, Invoices, TreatmentRecords, Dashboard, PatientAuth, AdminAuth, PatientPortal, Reports, Documents, MedicalHistory, AdminUsers, **DoctorAuth, DoctorPortal**)
 
 ---
 
@@ -54,6 +54,20 @@ dental-clinic-frontend/        # Angular 19 SPA
 - [x] Profile viewing and editing
 - [x] Dark sidebar layout matching admin panel design
 - [x] Auth guard, interceptor (Bearer token on `/api/portal/*` only)
+
+### Doctor Portal
+- [x] Doctor login with JWT authentication ("doctor" role, 8-hour tokens, refresh token rotation)
+- [x] `DoctorOnly` authorization policy
+- [x] Seeded test account: Dr. Anas Alardah (`anas@clinic.com` / `Doctor@123`)
+- [x] Dashboard with today's count, completed today, patients seen, upcoming, today's schedule
+- [x] Appointments view (Today / Upcoming / Past tabs) with confirm / complete-with-notes / no-show actions
+- [x] Patient detail page (profile, medical history CRUD, treatment records list + create, documents upload/download)
+- [x] My Schedule: per-weekday working hours + leaves CRUD
+- [x] My Stats: revenue, appointments completed/cancelled, no-shows, completion rate (date-range filter)
+- [x] Profile editing + change password
+- [x] Patient access gated to patients the doctor has seen
+- [x] Dark sidebar layout (cyan accent) matching admin/patient portal style
+- [x] Doctor auth guard, dedicated interceptor (Bearer token on `/api/doctor-portal/*` only)
 
 ### Infrastructure
 - [x] Clean Architecture (Domain -> Application -> Infrastructure -> API)
@@ -198,23 +212,23 @@ dental-clinic-frontend/        # Angular 19 SPA
 ### Phase 10 — Doctor Portal
 > Priority: **High** — Core missing role in the system
 
-- [ ] Add Doctor authentication (login endpoint, JWT with "doctor" role)
-- [ ] Seed a test doctor account: **Dr. Anas Alardah** (email: `anas@clinic.com`, password: `Doctor@123`)
-- [ ] Add DoctorPortalController (`/api/doctor-portal/*`) with doctor-only authorization
-- [ ] Doctor dashboard — today's schedule, upcoming appointments count, patients seen today
-- [ ] View my appointments (today, upcoming, past) with patient details
-- [ ] Confirm appointment (mark as Confirmed when patient arrives)
-- [ ] Complete appointment (mark as Completed with optional notes)
-- [ ] Mark appointment as No-Show
-- [ ] Add treatment record for a patient (clinical notes, diagnosis, procedures performed)
-- [ ] Upload documents for a patient (X-rays, prescriptions, photos) from doctor view
-- [ ] View patient profile and full medical history before appointment
-- [ ] Add/edit patient allergies, medications, conditions from doctor view
-- [ ] Manage my working hours and day-offs
-- [ ] View my performance stats (appointments completed, revenue generated, ratings)
-- [ ] Doctor portal frontend layout (sidebar navigation matching admin/patient portal design)
-- [ ] Doctor auth guard and interceptor (`/api/doctor-portal/*` Bearer token)
-- [ ] Add "DoctorOnly" authorization policy
+- [x] Add Doctor authentication (login endpoint, JWT with "doctor" role)
+- [x] Seed a test doctor account: **Dr. Anas Alardah** (email: `anas@clinic.com`, password: `Doctor@123`)
+- [x] Add DoctorPortalController (`/api/doctor-portal/*`) with doctor-only authorization
+- [x] Doctor dashboard — today's schedule, upcoming appointments count, patients seen today
+- [x] View my appointments (today, upcoming, past) with patient details
+- [x] Confirm appointment (mark as Confirmed when patient arrives)
+- [x] Complete appointment (mark as Completed with optional notes)
+- [x] Mark appointment as No-Show
+- [x] Add treatment record for a patient (clinical notes, diagnosis, procedures performed)
+- [x] Upload documents for a patient (X-rays, prescriptions, photos) from doctor view
+- [x] View patient profile and full medical history before appointment
+- [x] Add/edit patient allergies, medications, conditions from doctor view
+- [x] Manage my working hours and day-offs
+- [x] View my performance stats (appointments completed, revenue generated, ratings)
+- [x] Doctor portal frontend layout (sidebar navigation matching admin/patient portal design)
+- [x] Doctor auth guard and interceptor (`/api/doctor-portal/*` Bearer token)
+- [x] Add "DoctorOnly" authorization policy
 
 ---
 
@@ -238,4 +252,4 @@ dental-clinic-frontend/        # Angular 19 SPA
 
 ---
 
-*Last updated: 2026-04-23*
+*Last updated: 2026-06-09*

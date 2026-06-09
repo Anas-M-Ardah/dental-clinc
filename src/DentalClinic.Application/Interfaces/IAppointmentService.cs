@@ -11,5 +11,6 @@ public interface IAppointmentService
     Task<AppointmentDto> CreateAsync(CreateAppointmentDto dto);
     Task<AppointmentDto> UpdateAsync(int id, UpdateAppointmentDto dto);
     Task<AppointmentDto> RescheduleAsync(int id, RescheduleAppointmentDto dto);
+    Task<AppointmentDto> UpdateStatusAsync(int id, AppointmentStatus newStatus, string? appendNotes = null);
     Task DeleteAsync(int id);
 }

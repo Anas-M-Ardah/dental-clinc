@@ -15,6 +15,7 @@ import { ReportsComponent } from './features/reports/reports.component';
 import { DocumentsComponent } from './features/documents/documents.component';
 import { portalAuthGuard } from './core/guards/portal-auth.guard';
 import { adminAuthGuard } from './core/guards/admin-auth.guard';
+import { doctorAuthGuard } from './core/guards/doctor-auth.guard';
 
 export const routes: Routes = [
   // Admin login page (no guard, no layout)
@@ -99,6 +100,44 @@ export const routes: Routes = [
       {
         path: 'profile',
         loadComponent: () => import('./features/portal/profile/portal-profile.component').then(m => m.PortalProfileComponent)
+      }
+    ]
+  },
+  // Doctor portal auth page (no guard, no layout)
+  {
+    path: 'doctor/login',
+    loadComponent: () => import('./features/doctor-portal/auth/doctor-login.component').then(m => m.DoctorLoginComponent)
+  },
+  // Doctor portal pages (guarded, wrapped in DoctorLayoutComponent)
+  {
+    path: 'doctor',
+    loadComponent: () => import('./layouts/doctor-layout/doctor-layout.component').then(m => m.DoctorLayoutComponent),
+    canActivate: [doctorAuthGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/doctor-portal/dashboard/doctor-dashboard.component').then(m => m.DoctorDashboardComponent)
+      },
+      {
+        path: 'appointments',
+        loadComponent: () => import('./features/doctor-portal/appointments/doctor-appointments.component').then(m => m.DoctorAppointmentsComponent)
+      },
+      {
+        path: 'patients/:id',
+        loadComponent: () => import('./features/doctor-portal/patient-detail/doctor-patient-detail.component').then(m => m.DoctorPatientDetailComponent)
+      },
+      {
+        path: 'schedule',
+        loadComponent: () => import('./features/doctor-portal/schedule/doctor-schedule.component').then(m => m.DoctorScheduleComponent)
+      },
+      {
+        path: 'stats',
+        loadComponent: () => import('./features/doctor-portal/stats/doctor-stats.component').then(m => m.DoctorStatsComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/doctor-portal/profile/doctor-profile.component').then(m => m.DoctorProfileComponent)
       }
     ]
   }
