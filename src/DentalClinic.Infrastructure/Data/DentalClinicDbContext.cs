@@ -60,6 +60,9 @@ public class DentalClinicDbContext : DbContext
             entity.Property(e => e.Specialization).IsRequired().HasMaxLength(100);
             entity.Property(e => e.Phone).IsRequired().HasMaxLength(20);
             entity.Property(e => e.Email).HasMaxLength(100);
+            entity.HasIndex(e => e.Email)
+                  .IsUnique()
+                  .HasFilter("[Email] IS NOT NULL");
         });
 
         modelBuilder.Entity<Appointment>(entity =>
